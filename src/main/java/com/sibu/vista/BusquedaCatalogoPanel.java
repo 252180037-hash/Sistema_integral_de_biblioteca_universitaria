@@ -152,6 +152,7 @@ public class BusquedaCatalogoPanel extends JPanel {
 
         lblDetalleLibro = new JLabel("Seleccione una obra en la tabla superior para consultar la ubicación física de sus ejemplares.");
         lblDetalleLibro.setFont(UIHelper.FUENTE_LABEL);
+        lblDetalleLibro.setForeground(com.sibu.util.TemaUtil.getColorTextoPrincipal());
         panelInferior.add(lblDetalleLibro, BorderLayout.NORTH);
 
         String[] columnasCopia = {"ID", "Código de Barras / Inventario", "Ubicación Física (Estante/Nivel)", "Estado de Disponibilidad", "Observaciones"};
@@ -190,8 +191,15 @@ public class BusquedaCatalogoPanel extends JPanel {
     }
 
     private JLabel crearLabelFiltro(String texto) {
-        JLabel l = new JLabel(texto);
+        JLabel l = new JLabel(texto) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setForeground(com.sibu.util.TemaUtil.getColorTextoPrincipal());
+            }
+        };
         l.setFont(UIHelper.FUENTE_LABEL);
+        l.setForeground(com.sibu.util.TemaUtil.getColorTextoPrincipal());
         return l;
     }
 

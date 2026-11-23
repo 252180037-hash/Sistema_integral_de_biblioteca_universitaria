@@ -82,9 +82,9 @@ public class LoginFrame extends JFrame {
         cardLogin.setLayout(new BoxLayout(cardLogin, BoxLayout.Y_AXIS));
 
         // Título del sistema
-        JLabel lblLogo = new JLabel("SIBU", SwingConstants.CENTER);
-        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 28));
-        lblLogo.setForeground(TemaUtil.COLOR_PRIMARIO);
+        JLabel lblLogo = new JLabel("🏛  SIBU", SwingConstants.CENTER);
+        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 26));
+        lblLogo.setForeground(TemaUtil.getColorPrimario());
         lblLogo.setAlignmentX(CENTER_ALIGNMENT);
 
         JLabel lblSubtitulo = new JLabel("Sistema Integral de Biblioteca Universitaria", SwingConstants.CENTER);
@@ -92,8 +92,9 @@ public class LoginFrame extends JFrame {
         lblSubtitulo.setForeground(TemaUtil.getColorTextoSecundario());
         lblSubtitulo.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel lblInstruccion = new JLabel("Ingrese sus credenciales institucionales", SwingConstants.CENTER);
+        JLabel lblInstruccion = new JLabel("Autenticación con Hash y Sal (RF6)", SwingConstants.CENTER);
         lblInstruccion.setFont(UIHelper.FUENTE_LABEL);
+        lblInstruccion.setForeground(TemaUtil.getColorTextoPrincipal());
         lblInstruccion.setAlignmentX(CENTER_ALIGNMENT);
 
         cardLogin.add(lblLogo);
@@ -154,23 +155,26 @@ public class LoginFrame extends JFrame {
         // Pie de Página: Accesos Rápidos de Prueba (Seeders)
         // ---------------------------------------------------------------------
         JPanel panelInferior = new JPanel();
+        panelInferior.setOpaque(false);
         panelInferior.setLayout(new BoxLayout(panelInferior, BoxLayout.Y_AXIS));
 
         JLabel lblPrueba = new JLabel("Cuentas de prueba sembradas:");
         lblPrueba.setFont(new Font("SansSerif", Font.BOLD, 11));
+        lblPrueba.setForeground(TemaUtil.getColorTextoSecundario());
         lblPrueba.setAlignmentX(CENTER_ALIGNMENT);
 
         JPanel panelPills = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
+        panelPills.setOpaque(false);
 
-        JButton btnTestAdmin = new JButton("Admin");
+        JButton btnTestAdmin = UIHelper.crearBotonSecundario("Admin");
         btnTestAdmin.setFont(new Font("SansSerif", Font.PLAIN, 11));
         btnTestAdmin.addActionListener(e -> rellenarCredenciales("admin@sibu.edu", "Admin123*"));
 
-        JButton btnTestBiblio = new JButton("Bibliotecario");
+        JButton btnTestBiblio = UIHelper.crearBotonSecundario("Bibliotecario");
         btnTestBiblio.setFont(new Font("SansSerif", Font.PLAIN, 11));
         btnTestBiblio.addActionListener(e -> rellenarCredenciales("bibliotecario@sibu.edu", "Biblio123*"));
 
-        JButton btnTestLector = new JButton("Lector");
+        JButton btnTestLector = UIHelper.crearBotonSecundario("Lector");
         btnTestLector.setFont(new Font("SansSerif", Font.PLAIN, 11));
         btnTestLector.addActionListener(e -> rellenarCredenciales("lector1@sibu.edu", "Lector123*"));
 

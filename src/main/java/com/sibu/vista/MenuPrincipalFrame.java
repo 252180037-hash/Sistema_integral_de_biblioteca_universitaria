@@ -13,9 +13,12 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -23,24 +26,22 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 /**
- * Ventana principal del sistema SIBU con arquitectura modular y control estricto de roles (RF6).
+ * Ventana principal del sistema SIBU con arquitectura Shell Parity con Stitch y control RBAC (RF6).
  * <p>
  * Diseñada bajo la norma <b>ISO/IEC 25010:2023 (Seguridad, Usabilidad y Estética de Interfaz)</b>.
- * Muestra u oculta módulos en función del rol del usuario autenticado:
- * <ul>
- *   <li><b>Lector:</b> Acceso exclusivo a consulta de catálogo y su propio historial de préstamos.</li>
- *   <li><b>Bibliotecario:</b> Gestión de catálogo, módulo de circulación y reportes institucionales.</li>
- *   <li><b>Administrador:</b> Control total del sistema, incluyendo usuarios, bitácora y respaldos.</li>
- * </ul>
+ * Incorpora la barra lateral persistente (260px) de la plantilla Stitch, el selector de perfiles (RF2/RF6),
+ * el Dashboard Integral con telemetría de software (RF1–RF8) y soporte reactivo bimodal (Claro/Oscuro).
  * </p>
  * 
  * @author SIBU Arquitectura
- * @version 1.0.0
+ * @version 2.1.0
  */
 public class MenuPrincipalFrame extends JFrame {
 
@@ -50,9 +51,12 @@ public class MenuPrincipalFrame extends JFrame {
     private JPanel panelContenido;
     private CardLayout cardLayout;
     private JButton btnAlternarTema;
+    private JLabel lblRoleSummary;
     private final List<JButton> botonesMenu = new ArrayList<>();
+    private final Map<JButton, String> mapaBotonesCard = new HashMap<>();
 
     // Identificadores de paneles (CardLayout)
+    public static final String CARD_DASHBOARD = "DASHBOARD_INTEGRAL";
     public static final String CARD_BUSQUEDA = "BUSQUEDA_CATALOGO";
     public static final String CARD_CATALOGO = "CATALOGO_LIBROS";
     public static final String CARD_CIRCULACION = "CIRCULACION";
@@ -68,21 +72,23 @@ public class MenuPrincipalFrame extends JFrame {
     }
 
     private void inicializarUI() {
-        setTitle("SIBU - Sistema Integral de Biblioteca Universitaria [" + usuarioActual.getRol().getEtiqueta() + "]");
+        setTitle("SIBU — Sistema Integrado de Bibliotecas [" + usuarioActual.getRol().getEtiqueta() + "]");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 750);
-        setMinimumSize(new Dimension(980, 620));
+        setSize(1280, 800);
+        setMinimumSize(new Dimension(1024, 680));
         setLocationRelativeTo(null);
 
         JPanel panelContenedor = new JPanel(new BorderLayout());
+        panelContenedor.setBackground(TemaUtil.getColorFondo());
 
-        // 1. Barra Lateral de Navegación (Sidebar)
+        // 1. Barra Lateral de Navegación Persistente (260px)
         panelLateral = construirSidebar();
         panelContenedor.add(panelLateral, BorderLayout.WEST);
 
         // 2. Área Central Dinámica (CardLayout)
         cardLayout = new CardLayout();
         panelContenido = new JPanel(cardLayout);
+        panelContenido.setBackground(TemaUtil.getColorFondo());
 
         construirVistasSegunRol();
 
@@ -91,87 +97,225 @@ public class MenuPrincipalFrame extends JFrame {
     }
 
     private JPanel construirSidebar() {
-        JPanel sidebar = new JPanel();
+        JPanel sidebar = new JPanel() {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorSuperficieContenedor());
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
+                        BorderFactory.createEmptyBorder(18, 14, 18, 14)
+                ));
+            }
+        };
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(250, 0));
+        sidebar.setPreferredSize(new Dimension(260, 0));
+        sidebar.setBackground(TemaUtil.getColorSuperficieContenedor());
         sidebar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.COLOR_NEUTRO_BORDE),
-                BorderFactory.createEmptyBorder(15, 12, 15, 12)
+                BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
+                BorderFactory.createEmptyBorder(18, 14, 18, 14)
         ));
 
-        // Logotipo / Encabezado
-        JLabel lblLogo = new JLabel("SIBU", SwingConstants.LEFT);
-        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblLogo.setForeground(TemaUtil.COLOR_PRIMARIO);
+        // ---------------------------------------------------------------------
+        // 1. Brand Header (Plantilla Stitch)
+        // ---------------------------------------------------------------------
+        JPanel brandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        brandPanel.setOpaque(false);
+        brandPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel lblSub = new JLabel("Biblioteca Universitaria", SwingConstants.LEFT);
-        lblSub.setFont(UIHelper.FUENTE_SUBTITULO);
+        // Icono biblioteca en caja redondeada
+        JLabel brandIcon = new JLabel("🏛", SwingConstants.CENTER);
+        brandIcon.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        brandIcon.setOpaque(true);
+        brandIcon.setBackground(TemaUtil.getColorPrimario());
+        brandIcon.setForeground(TemaUtil.getColorPrimarioTexto());
+        brandIcon.setPreferredSize(new Dimension(38, 38));
+        brandIcon.setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
+
+        JPanel brandText = new JPanel();
+        brandText.setOpaque(false);
+        brandText.setLayout(new BoxLayout(brandText, BoxLayout.Y_AXIS));
+
+        JLabel lblLogo = new JLabel("SIBU", SwingConstants.LEFT);
+        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 18));
+        lblLogo.setForeground(TemaUtil.getColorTextoPrincipal());
+
+        JLabel lblSub = new JLabel("Java · 5 Capas", SwingConstants.LEFT);
+        lblSub.setFont(new Font("Monospaced", Font.PLAIN, 11));
         lblSub.setForeground(TemaUtil.getColorTextoSecundario());
 
-        sidebar.add(lblLogo);
-        sidebar.add(Box.createVerticalStrut(2));
-        sidebar.add(lblSub);
-        sidebar.add(Box.createVerticalStrut(15));
+        brandText.add(lblLogo);
+        brandText.add(Box.createVerticalStrut(1));
+        brandText.add(lblSub);
 
-        // Tarjeta de perfil de usuario actual
+        brandPanel.add(brandIcon);
+        brandPanel.add(brandText);
+
+        sidebar.add(brandPanel);
+        sidebar.add(Box.createVerticalStrut(16));
+
+        // ---------------------------------------------------------------------
+        // 2. Selector de Perfiles (RF2 / RF6 Tab Pills)
+        // ---------------------------------------------------------------------
+        JPanel rolePillsCard = new JPanel();
+        rolePillsCard.setOpaque(false);
+        rolePillsCard.setLayout(new BoxLayout(rolePillsCard, BoxLayout.Y_AXIS));
+        rolePillsCard.setAlignmentX(LEFT_ALIGNMENT);
+
+        JLabel lblRoleTitle = new JLabel("Perfil activo (RF2 / RF6)");
+        lblRoleTitle.setFont(new Font("SansSerif", Font.BOLD, 11));
+        lblRoleTitle.setForeground(TemaUtil.getColorTextoSecundario());
+        rolePillsCard.add(lblRoleTitle);
+        rolePillsCard.add(Box.createVerticalStrut(6));
+
+        JPanel pillsPanel = new JPanel(new GridLayout(1, 3, 4, 0));
+        pillsPanel.setOpaque(false);
+        pillsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+
+        RolUsuario rol = usuarioActual.getRol();
+        JButton tabAdmin = crearRoleTab("Admin", rol == RolUsuario.ADMINISTRADOR);
+        JButton tabBiblio = crearRoleTab("Biblio", rol == RolUsuario.BIBLIOTECARIO);
+        JButton tabLector = crearRoleTab("Lector", rol == RolUsuario.LECTOR);
+
+        pillsPanel.add(tabAdmin);
+        pillsPanel.add(tabBiblio);
+        pillsPanel.add(tabLector);
+        rolePillsCard.add(pillsPanel);
+        rolePillsCard.add(Box.createVerticalStrut(6));
+
+        lblRoleSummary = new JLabel(obtenerResumenRol(rol));
+        lblRoleSummary.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        lblRoleSummary.setForeground(TemaUtil.getColorTextoSecundario());
+        rolePillsCard.add(lblRoleSummary);
+
+        sidebar.add(rolePillsCard);
+        sidebar.add(Box.createVerticalStrut(14));
+
+        // ---------------------------------------------------------------------
+        // 3. Tarjeta de Usuario Actual
+        // ---------------------------------------------------------------------
         JPanel cardUser = UIHelper.crearTarjeta();
         cardUser.setLayout(new BoxLayout(cardUser, BoxLayout.Y_AXIS));
+        cardUser.setAlignmentX(LEFT_ALIGNMENT);
+        cardUser.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
 
         JLabel lblNombre = new JLabel(usuarioActual.getNombreCompleto());
         lblNombre.setFont(UIHelper.FUENTE_LABEL);
+        lblNombre.setForeground(TemaUtil.getColorTextoPrincipal());
 
-        JLabel lblRol = new JLabel(usuarioActual.getRol().getEtiqueta().toUpperCase());
-        lblRol.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lblRol.setForeground(obtenerColorRol(usuarioActual.getRol()));
+        JLabel lblRolPill = new JLabel("  " + usuarioActual.getRol().getEtiqueta().toUpperCase() + "  ");
+        lblRolPill.setFont(new Font("SansSerif", Font.BOLD, 10));
+        lblRolPill.setOpaque(true);
+        lblRolPill.setBackground(TemaUtil.COLOR_TEA_GREEN);
+        lblRolPill.setForeground(TemaUtil.COLOR_EVERGREEN);
+        lblRolPill.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
 
         JLabel lblIdent = new JLabel("ID: " + usuarioActual.getIdentificacion());
         lblIdent.setFont(new Font("SansSerif", Font.PLAIN, 10));
         lblIdent.setForeground(TemaUtil.getColorTextoSecundario());
 
         cardUser.add(lblNombre);
-        cardUser.add(Box.createVerticalStrut(2));
-        cardUser.add(lblRol);
-        cardUser.add(Box.createVerticalStrut(2));
+        cardUser.add(Box.createVerticalStrut(3));
+        cardUser.add(lblRolPill);
+        cardUser.add(Box.createVerticalStrut(3));
         cardUser.add(lblIdent);
 
         sidebar.add(cardUser);
-        sidebar.add(Box.createVerticalStrut(20));
+        sidebar.add(Box.createVerticalStrut(16));
 
-        // Menú de opciones según rol (RF6)
-        RolUsuario rol = usuarioActual.getRol();
+        // ---------------------------------------------------------------------
+        // 4. Navegación Principal Modular con Iconos y Códigos RF
+        // ---------------------------------------------------------------------
+        JLabel lblSecOperacion = new JLabel("OPERACIÓN SIBU");
+        lblSecOperacion.setFont(new Font("SansSerif", Font.BOLD, 10));
+        lblSecOperacion.setForeground(TemaUtil.getColorTextoSecundario());
+        lblSecOperacion.setAlignmentX(LEFT_ALIGNMENT);
+        sidebar.add(lblSecOperacion);
+        sidebar.add(Box.createVerticalStrut(6));
 
-        // Todos tienen acceso a Búsqueda
-        agregarBotonNavegacion(sidebar, "Búsqueda de Catálogo", CARD_BUSQUEDA, true);
+        // 1. Resumen General (Dashboard Integral)
+        agregarBotonNavegacion(sidebar, "  📊  Resumen General", CARD_DASHBOARD, true);
 
-        // Bibliotecario y Administrador
+        // 2. Consulta y Búsqueda de Catálogo (RF4)
+        agregarBotonNavegacion(sidebar, "  🔍  Búsqueda Catálogo (RF4)", CARD_BUSQUEDA, false);
+
+        // 3. Módulos Operativos (Admin / Bibliotecario)
         if (rol == RolUsuario.ADMINISTRADOR || rol == RolUsuario.BIBLIOTECARIO) {
-            agregarBotonNavegacion(sidebar, "Gestión de Catálogo", CARD_CATALOGO, false);
-            agregarBotonNavegacion(sidebar, "Módulo Circulación", CARD_CIRCULACION, false);
-            agregarBotonNavegacion(sidebar, "Reportes y Estadísticas", CARD_REPORTES, false);
+            agregarBotonNavegacion(sidebar, "  📚  Gestión Catálogo (RF1)", CARD_CATALOGO, false);
+            agregarBotonNavegacion(sidebar, "  🔄  Circulación (RF3)", CARD_CIRCULACION, false);
+            agregarBotonNavegacion(sidebar, "  📈  Reportes CSV (RF5)", CARD_REPORTES, false);
         }
 
-        // Solo Administrador
+        // 4. Módulos de Calidad y Sistema (Admin)
         if (rol == RolUsuario.ADMINISTRADOR) {
-            agregarBotonNavegacion(sidebar, "Gestión de Usuarios", CARD_USUARIOS, false);
-            agregarBotonNavegacion(sidebar, "Bitácora de Auditoría", CARD_BITACORA, false);
-            agregarBotonNavegacion(sidebar, "Respaldos y Datos", CARD_ADMIN_DATOS, false);
+            sidebar.add(Box.createVerticalStrut(8));
+            JLabel lblSecAdmin = new JLabel("CALIDAD & SISTEMA");
+            lblSecAdmin.setFont(new Font("SansSerif", Font.BOLD, 10));
+            lblSecAdmin.setForeground(TemaUtil.getColorTextoSecundario());
+            lblSecAdmin.setAlignmentX(LEFT_ALIGNMENT);
+            sidebar.add(lblSecAdmin);
+            sidebar.add(Box.createVerticalStrut(6));
+
+            agregarBotonNavegacion(sidebar, "  👥  Gestión Usuarios (RF2)", CARD_USUARIOS, false);
+            agregarBotonNavegacion(sidebar, "  📜  Bitácora Auditoría (RF7)", CARD_BITACORA, false);
+            agregarBotonNavegacion(sidebar, "  💾  Respaldos & Seeders (RF8)", CARD_ADMIN_DATOS, false);
         }
 
-        // Solo Lector
+        // 5. Historial para Lector
         if (rol == RolUsuario.LECTOR) {
-            agregarBotonNavegacion(sidebar, "Mis Préstamos", CARD_HISTORIAL_LECTOR, false);
+            agregarBotonNavegacion(sidebar, "  📖  Mis Préstamos Activos", CARD_HISTORIAL_LECTOR, false);
         }
 
-        // Espaciador flexible para empujar el pie de la barra lateral al fondo
         sidebar.add(Box.createVerticalGlue());
 
+        // ---------------------------------------------------------------------
+        // 5. Pie de la Barra Lateral: Pill de Arquitectura y Acciones
+        // ---------------------------------------------------------------------
+        JPanel cardArch = new JPanel();
+        cardArch.setOpaque(true);
+        cardArch.setBackground(TemaUtil.getColorSuperficie());
+        cardArch.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+        cardArch.setLayout(new BoxLayout(cardArch, BoxLayout.Y_AXIS));
+        cardArch.setAlignmentX(LEFT_ALIGNMENT);
+        cardArch.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        JPanel rowState = new JPanel(new BorderLayout(5, 0));
+        rowState.setOpaque(false);
+        JLabel lblDbState = new JLabel("MySQL Red Local");
+        lblDbState.setFont(new Font("SansSerif", Font.BOLD, 11));
+        lblDbState.setForeground(TemaUtil.getColorTextoPrincipal());
+
+        JLabel badgeState = new JLabel(" Activo ");
+        badgeState.setFont(new Font("SansSerif", Font.BOLD, 10));
+        badgeState.setOpaque(true);
+        badgeState.setBackground(TemaUtil.COLOR_TEA_GREEN);
+        badgeState.setForeground(TemaUtil.COLOR_EXITO);
+        badgeState.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
+
+        rowState.add(lblDbState, BorderLayout.WEST);
+        rowState.add(badgeState, BorderLayout.EAST);
+
+        JLabel lblJdbc = new JLabel("PreparedStatement · JDBC");
+        lblJdbc.setFont(new Font("Monospaced", Font.PLAIN, 10));
+        lblJdbc.setForeground(TemaUtil.getColorTextoSecundario());
+
+        cardArch.add(rowState);
+        cardArch.add(Box.createVerticalStrut(2));
+        cardArch.add(lblJdbc);
+
+        sidebar.add(cardArch);
+        sidebar.add(Box.createVerticalStrut(10));
+
         // Selector de Tema (Modo Claro / Modo Oscuro)
-        btnAlternarTema = UIHelper.crearBotonSecundario(TemaUtil.esModoOscuro() ? "Modo Claro" : "Modo Oscuro");
+        btnAlternarTema = UIHelper.crearBotonSecundario(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
         btnAlternarTema.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         btnAlternarTema.setAlignmentX(LEFT_ALIGNMENT);
         btnAlternarTema.addActionListener(e -> alternarTema());
         sidebar.add(btnAlternarTema);
-        sidebar.add(Box.createVerticalStrut(8));
+        sidebar.add(Box.createVerticalStrut(6));
 
         // Botón Cerrar Sesión
         JButton btnLogout = UIHelper.crearBotonPeligro("Cerrar Sesión");
@@ -181,6 +325,46 @@ public class MenuPrincipalFrame extends JFrame {
         sidebar.add(btnLogout);
 
         return sidebar;
+    }
+
+    private JButton crearRoleTab(String texto, boolean activo) {
+        JButton btn = new JButton(texto);
+        btn.setFont(new Font("SansSerif", activo ? Font.BOLD : Font.PLAIN, 11));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setMargin(new Insets(2, 4, 2, 4));
+
+        if (activo) {
+            btn.setBackground(TemaUtil.getColorSuperficie());
+            btn.setForeground(TemaUtil.getColorPrimario());
+            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
+        } else {
+            btn.setBackground(TemaUtil.getColorSuperficieContenedor());
+            btn.setForeground(TemaUtil.getColorTextoSecundario());
+            btn.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+        }
+
+        btn.addActionListener(e -> {
+            lblRoleSummary.setText(obtenerResumenRolPorNombre(texto));
+        });
+
+        return btn;
+    }
+
+    private String obtenerResumenRol(RolUsuario rol) {
+        return switch (rol) {
+            case ADMINISTRADOR -> "Acceso total: catálogo, usuarios, bitácora y respaldos.";
+            case BIBLIOTECARIO -> "Operación: catálogo bibliográfico, circulación y reportes.";
+            case LECTOR -> "Consulta en tiempo real del catálogo y préstamos personales.";
+        };
+    }
+
+    private String obtenerResumenRolPorNombre(String rolNombre) {
+        return switch (rolNombre.toLowerCase()) {
+            case "admin" -> "Acceso total: catálogo, usuarios, bitácora y respaldos.";
+            case "biblio" -> "Operación: catálogo bibliográfico, circulación y reportes.";
+            default -> "Consulta en tiempo real del catálogo y préstamos personales.";
+        };
     }
 
     private void agregarBotonNavegacion(JPanel panel, String texto, String cardId, boolean seleccionadoInicial) {
@@ -197,94 +381,95 @@ public class MenuPrincipalFrame extends JFrame {
             actualizarEstadoBotones(btn);
         });
 
+        botonesMenu.add(btn);
+        mapaBotonesCard.put(btn, cardId);
+
         if (seleccionadoInicial) {
-            btn.setFont(UIHelper.FUENTE_LABEL);
-            btn.setForeground(TemaUtil.COLOR_PRIMARIO);
+            estilizarBotonActivo(btn);
+        } else {
+            estilizarBotonInactivo(btn);
         }
 
-        botonesMenu.add(btn);
         panel.add(btn);
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(4));
+    }
+
+    private void estilizarBotonActivo(JButton btn) {
+        btn.setFont(UIHelper.FUENTE_LABEL);
+        btn.setOpaque(true);
+        if (TemaUtil.esModoOscuro()) {
+            btn.setBackground(new Color(44, 79, 39));
+            btn.setForeground(TemaUtil.COLOR_TEA_GREEN);
+            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_SAGE_GREEN, 1, true));
+        } else {
+            btn.setBackground(TemaUtil.COLOR_TEA_GREEN);
+            btn.setForeground(TemaUtil.COLOR_EVERGREEN);
+            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
+        }
+    }
+
+    private void estilizarBotonInactivo(JButton btn) {
+        btn.setFont(UIHelper.FUENTE_REGULAR);
+        btn.setOpaque(false);
+        btn.setBackground(null);
+        btn.setForeground(TemaUtil.getColorTextoPrincipal());
+        btn.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
     }
 
     private void actualizarEstadoBotones(JButton botonActivo) {
         for (JButton b : botonesMenu) {
             if (b == botonActivo) {
-                b.setFont(UIHelper.FUENTE_LABEL);
-                b.setForeground(TemaUtil.COLOR_PRIMARIO);
+                estilizarBotonActivo(b);
             } else {
-                b.setFont(UIHelper.FUENTE_REGULAR);
-                b.setForeground(null);
+                estilizarBotonInactivo(b);
             }
         }
     }
 
     private void construirVistasSegunRol() {
-        // 1. Buscador de catálogo (disponible para todos)
+        // 1. Dashboard Integral Telemetría (Shell Parity con Stitch) - Vista principal
+        panelContenido.add(new DashboardIntegralPanel(usuarioActual), CARD_DASHBOARD);
+
+        // 2. Buscador de catálogo (disponible para todos los roles)
         panelContenido.add(new BusquedaCatalogoPanel(), CARD_BUSQUEDA);
 
         RolUsuario rol = usuarioActual.getRol();
 
-        // 2. Módulos operativos
+        // 3. Módulos operativos
         if (rol == RolUsuario.ADMINISTRADOR || rol == RolUsuario.BIBLIOTECARIO) {
             panelContenido.add(new CatalogoPanel(usuarioActual), CARD_CATALOGO);
             panelContenido.add(new CirculacionPanel(usuarioActual), CARD_CIRCULACION);
             panelContenido.add(new ReportesPanel(), CARD_REPORTES);
         }
 
-        // 3. Módulos administrativos
+        // 4. Módulos administrativos
         if (rol == RolUsuario.ADMINISTRADOR) {
             panelContenido.add(new UsuariosPanel(usuarioActual), CARD_USUARIOS);
             panelContenido.add(new BitacoraPanel(), CARD_BITACORA);
             panelContenido.add(new AdminDatosPanel(usuarioActual), CARD_ADMIN_DATOS);
         }
 
-        // 4. Panel de Lector
+        // 5. Panel de Lector
         if (rol == RolUsuario.LECTOR) {
             panelContenido.add(crearPanelHistorialLector(), CARD_HISTORIAL_LECTOR);
         }
 
-        // Mostrar por defecto el catálogo
-        cardLayout.show(panelContenido, CARD_BUSQUEDA);
-    }
-
-    private JPanel crearPanelPlaceholder(String titulo, String subtitulo) {
-        JPanel p = new JPanel(new GridBagLayout());
-        JPanel tarjeta = UIHelper.crearTarjeta();
-        tarjeta.setPreferredSize(new Dimension(500, 200));
-        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
-
-        JLabel l1 = new JLabel(titulo, SwingConstants.CENTER);
-        l1.setFont(UIHelper.FUENTE_TITULO);
-        l1.setAlignmentX(CENTER_ALIGNMENT);
-
-        JLabel l2 = new JLabel(subtitulo, SwingConstants.CENTER);
-        l2.setFont(UIHelper.FUENTE_REGULAR);
-        l2.setForeground(TemaUtil.getColorTextoSecundario());
-        l2.setAlignmentX(CENTER_ALIGNMENT);
-
-        tarjeta.add(Box.createVerticalGlue());
-        tarjeta.add(l1);
-        tarjeta.add(Box.createVerticalStrut(10));
-        tarjeta.add(l2);
-        tarjeta.add(Box.createVerticalGlue());
-
-        p.add(tarjeta);
-        return p;
+        // Mostrar por defecto el Dashboard Integral
+        cardLayout.show(panelContenido, CARD_DASHBOARD);
     }
 
     private JPanel crearPanelHistorialLector() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setBackground(TemaUtil.getColorFondo());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 18, 15, 18));
 
         panel.add(UIHelper.crearEncabezadoModulo(
-                "Mi Historial de Préstamos y Sanciones",
-                "Consulte el estado de los libros que tiene actualmente en préstamo y su historial."
+                "Mi Historial de Préstamos y Sanciones (Portal Lector)",
+                "Consulte en tiempo real el estado de sus libros prestados, plazos reglamentarios y mora."
         ), BorderLayout.NORTH);
 
-        // Tabla con préstamos del usuario lector
-        String[] cols = {"ID Préstamo", "Ejemplar", "Título de la Obra", "Fecha Préstamo", "Fecha Límite", "Estado"};
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(cols, 0) {
+        String[] cols = {"ID Préstamo", "Cód. Ejemplar", "Título de la Obra", "Fecha Préstamo", "Fecha Límite", "Estado de Circulación"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
                 return false;
@@ -306,30 +491,21 @@ public class MenuPrincipalFrame extends JFrame {
                         p.estaVencido() ? "VENCIDO" : p.getEstado().getEtiqueta()
                 });
             }
-        } catch (Exception e) {
-            // Manejo silencioso en vista previa
+        } catch (Exception ignored) {
         }
 
-        panel.add(new javax.swing.JScrollPane(table), BorderLayout.CENTER);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
         return panel;
-    }
-
-    private Color obtenerColorRol(RolUsuario rol) {
-        return switch (rol) {
-            case ADMINISTRADOR -> TemaUtil.COLOR_PRIMARIO;
-            case BIBLIOTECARIO -> TemaUtil.COLOR_EXITO;
-            case LECTOR -> TemaUtil.COLOR_SAGE_GREEN;
-        };
     }
 
     private void alternarTema() {
         boolean oscuro = TemaUtil.alternarTema();
-        btnAlternarTema.setText(oscuro ? "Modo Claro" : "Modo Oscuro");
+        btnAlternarTema.setText(oscuro ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
         for (JButton b : botonesMenu) {
             if (b.getFont().isBold()) {
-                b.setForeground(TemaUtil.getColorPrimario());
+                estilizarBotonActivo(b);
             } else {
-                b.setForeground(null);
+                estilizarBotonInactivo(b);
             }
         }
     }
