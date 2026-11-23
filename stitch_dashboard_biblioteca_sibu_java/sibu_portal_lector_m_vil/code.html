@@ -1,0 +1,387 @@
+<!DOCTYPE html><html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIBU — Portal Lector (Móvil)</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'tea-green': '#C9F2C7',
+        'light-green': '#ACECA1',
+        'muted-olive': '#96BE8C',
+        'sage-green': '#629460',
+        'evergreen': '#243119',
+        'success': '#146C2E',
+        'on-success': '#FFFFFF',
+        'success-container': '#C9F2C7',
+        'on-success-container': '#243119',
+        'warning': '#8C5000',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FFDCBE',
+        'on-warning-container': '#2C1600',
+        'light-primary': '#376637',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#629460',
+        'light-on-primary-container': '#212121',
+        'light-secondary': '#43673D',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#C9F2C7',
+        'light-on-secondary-container': '#243119',
+        'light-tertiary': '#89475F',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#A65F77',
+        'light-on-tertiary-container': '#FFFFFF',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#690005',
+        'light-background': '#F4FBF2',
+        'light-on-background': '#243119',
+        'light-surface': '#F4FBF2',
+        'light-surface-dim': '#D5E4D1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#EBF5E8',
+        'light-surface-container': '#E2F0DE',
+        'light-surface-container-high': '#DAE9D6',
+        'light-surface-container-highest': '#D1E2CC',
+        'light-on-surface': '#243119',
+        'light-surface-variant': '#DDE5D8',
+        'light-on-surface-variant': '#3D4B31',
+        'light-outline': '#72796E',
+        'light-outline-variant': '#96BE8C',
+        'light-inverse-surface': '#243119',
+        'light-inverse-on-surface': '#E6F6D2',
+        'light-inverse-primary': '#ACECA1',
+        'dark-primary': '#ACECA1',
+        'dark-on-primary': '#243119',
+        'dark-primary-container': '#629460',
+        'dark-on-primary-container': '#212121',
+        'dark-secondary': '#96BE8C',
+        'dark-on-secondary': '#243119',
+        'dark-secondary-container': '#2C4F27',
+        'dark-on-secondary-container': '#C9F2C7',
+        'dark-tertiary': '#FFB0C9',
+        'dark-on-tertiary': '#541C33',
+        'dark-tertiary-container': '#C67A94',
+        'dark-on-tertiary-container': '#410C23',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#0B1603',
+        'dark-on-background': '#D8E8C4',
+        'dark-surface': '#0B1603',
+        'dark-surface-dim': '#0B1603',
+        'dark-surface-bright': '#303D24',
+        'dark-surface-container-lowest': '#061101',
+        'dark-surface-container-low': '#131F09',
+        'dark-surface-container': '#17230C',
+        'dark-surface-container-high': '#212E16',
+        'dark-surface-container-highest': '#2B3920',
+        'dark-on-surface': '#D8E8C4',
+        'dark-surface-variant': '#41493F',
+        'dark-on-surface-variant': '#C1C9BC',
+        'dark-outline': '#8B9388',
+        'dark-outline-variant': '#41493F',
+        'dark-inverse-surface': '#D8E8C4',
+        'dark-inverse-on-surface': '#243119',
+        'dark-inverse-primary': '#376637',
+      },
+      borderRadius: {
+        'sm': '4px',
+        'DEFAULT': '8px',
+        'md': '12px',
+        'lg': '16px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '16px',
+        'gutter-lg': '24px',
+        'gutter-xl': '32px',
+        'section': '48px',
+        'page-margin': '24px',
+      },
+      fontFamily: {
+        'display': ['"Red Hat Text"', 'sans-serif'],
+        'headline': ['"Red Hat Text"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-md': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '700' }],
+        'display-md-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '700' }],
+        'headline-lg': ['24px', { lineHeight: '32px', letterSpacing: '-0.25px', fontWeight: '600' }],
+        'headline-md': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '500' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.25px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '220ms',
+        'surface-exit': '150ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link rel="stylesheet" href="../palette.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Red+Hat+Text:wght@600;700&amp;family=Spline+Sans+Mono:wght@500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="bg-light-surface text-light-on-surface font-body antialiased">
+
+  <div class="min-h-[884px] flex flex-col max-w-md mx-auto bg-light-surface" data-stitch-vh="min-h-[884px]===min-h-screen">
+    <!-- Mobile Top Header -->
+    <header class="sticky top-0 z-20 bg-light-surface-container-lowest border-b border-light-outline-variant px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <a href="../index.html" title="Centro de Módulos" class="w-8 h-8 rounded bg-light-primary text-light-on-primary flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_back</span>
+        </a>
+        <div class="min-w-0">
+          <h1 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">SIBU Lector</h1>
+          <p class="font-body text-body-sm text-light-on-surface-variant">Sofía Ramírez · MAT-0512</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle-btn" type="button" aria-label="Cambiar tema" class="p-1.5 rounded border border-light-outline-variant text-light-on-surface hover:bg-light-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[18px]" id="theme-toggle-icon">dark_mode</span>
+        </button>
+        <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-xs">Al corriente</span>
+      </div>
+    </header>
+
+    <!-- Main Mobile Content -->
+    <main class="flex-1 p-4 flex flex-col gap-5 pb-20">
+      <!-- Feedback Toast -->
+      <div id="mobile-toast" hidden class="px-3.5 py-2.5 rounded bg-success-container text-on-success-container border border-light-outline-variant flex items-center justify-between gap-2">
+        <p id="mobile-toast-text" class="font-body text-body-sm">Acción completada.</p>
+        <button id="mobile-toast-close" type="button" class="font-body text-label-sm underline shrink-0">Cerrar</button>
+      </div>
+
+      <!-- Summary KPIs -->
+      <section aria-label="Resumen del lector" class="grid grid-cols-2 gap-3 items-stretch">
+        <article class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-4 flex flex-col justify-between gap-1.5">
+          <span class="font-body text-label-sm text-light-on-surface-variant">Préstamos activos</span>
+          <p class="font-headline text-display-md-mobile text-light-on-surface tabular-nums" data-design-text-token="display-md-mobile">2</p>
+          <span class="font-body text-body-sm text-light-on-surface-variant">Máximo 5 ejemplares</span>
+        </article>
+        <article class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-4 flex flex-col justify-between gap-1.5">
+          <span class="font-body text-label-sm text-light-on-surface-variant">Sanciones (RF3)</span>
+          <p class="font-headline text-display-md-mobile text-light-on-surface tabular-nums" data-design-text-token="display-md-mobile">$0.00</p>
+          <span class="font-body text-body-sm text-light-on-surface-variant">Sin adeudos vigentes</span>
+        </article>
+      </section>
+
+      <!-- Catalog Search (RF4) -->
+      <section aria-label="Búsqueda en catálogo" class="flex flex-col gap-3">
+        <div class="relative">
+          <span class="material-symbols-outlined text-[18px] text-light-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true">search</span>
+          <input id="mobile-search" type="search" placeholder="Buscar título, autor, ISBN o materia (RF4)..." aria-label="Buscar en catálogo bibliográfico" class="w-full pl-9 pr-3 py-2.5 rounded bg-light-surface-container-lowest border border-light-outline-variant font-body text-body-sm text-light-on-surface placeholder:text-light-on-surface-variant focus:border-light-primary focus:ring-1 focus:ring-light-primary">
+        </div>
+
+        <div class="flex flex-wrap gap-1.5" role="group" aria-label="Filtro por materia">
+          <button type="button" data-mat="all" class="mat-chip px-3 py-1 rounded-full bg-light-primary text-light-on-primary font-body text-label-sm">Todos</button>
+          <button type="button" data-mat="Programación Java" class="mat-chip px-3 py-1 rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant font-body text-label-sm">Java</button>
+          <button type="button" data-mat="Bases de Datos" class="mat-chip px-3 py-1 rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant font-body text-label-sm">Bases de Datos</button>
+          <button type="button" data-mat="Ingeniería SW" class="mat-chip px-3 py-1 rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant font-body text-label-sm">Ing. SW</button>
+        </div>
+      </section>
+
+      <!-- My Active Loans (RF3) -->
+      <section id="mis-prestamos" class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Mis préstamos (RF3)</h2>
+          <span class="font-mono text-mono-sm text-light-on-surface-variant">2 activos</span>
+        </div>
+
+        <article class="bg-light-surface-container-lowest border border-light-outline-variant rounded p-4 flex flex-col gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="font-body text-title-md text-light-on-surface">Clean Code (Robert C. Martin)</p>
+              <p class="font-mono text-mono-sm text-light-on-surface-variant">EJ-0188 · Vence: 29 Nov</p>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">En tiempo</span>
+          </div>
+          <button type="button" data-renew="Clean Code" class="btn-renew w-full py-2 rounded bg-light-secondary-container text-light-on-secondary-container font-body text-label-sm hover:bg-light-primary hover:text-light-on-primary transition-colors duration-state-change">
+            Renovar préstamo (+7 días)
+          </button>
+        </article>
+
+        <article class="bg-light-surface-container-lowest border border-light-outline-variant rounded p-4 flex flex-col gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="font-body text-title-md text-light-on-surface">Estructuras de Datos en Java</p>
+              <p class="font-mono text-mono-sm text-light-on-surface-variant">EJ-0541 · Vence: 24 Nov</p>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-warning-container text-on-warning-container font-body text-label-sm">Por vencer</span>
+          </div>
+          <button type="button" data-renew="Estructuras de Datos en Java" class="btn-renew w-full py-2 rounded bg-light-secondary-container text-light-on-secondary-container font-body text-label-sm hover:bg-light-primary hover:text-light-on-primary transition-colors duration-state-change">
+            Renovar préstamo (+7 días)
+          </button>
+        </article>
+      </section>
+
+      <!-- Available Catalog (RF4) -->
+      <section id="catalogo-movil" class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Catálogo disponible (RF4)</h2>
+          <span class="font-mono text-mono-sm text-success">p95 0.38 s</span>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <article data-materia="Programación Java" class="mobile-book bg-light-surface-container-lowest border border-light-outline-variant rounded p-3.5 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-body text-body-md text-light-on-surface">Effective Java (Joshua Bloch)</p>
+              <p class="font-mono text-mono-sm text-light-on-surface-variant">978-013-46-8599-1 · Java</p>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-warning-container text-on-warning-container font-body text-label-sm tabular-nums">1 disp.</span>
+          </article>
+
+          <article data-materia="Bases de Datos" class="mobile-book bg-light-surface-container-lowest border border-light-outline-variant rounded p-3.5 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-body text-body-md text-light-on-surface">Fundamentos de Bases de Datos</p>
+              <p class="font-mono text-mono-sm text-light-on-surface-variant">978-844-81-9033-0 · BD</p>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm tabular-nums">5 disp.</span>
+          </article>
+
+          <article data-materia="Ingeniería SW" class="mobile-book bg-light-surface-container-lowest border border-light-outline-variant rounded p-3.5 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-body text-body-md text-light-on-surface">Ingeniería de Software</p>
+              <p class="font-mono text-mono-sm text-light-on-surface-variant">978-607-32-3579-2 · Ing. SW</p>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-light-error-container text-light-on-error-container font-body text-label-sm tabular-nums">0 disp.</span>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Mobile Navigation -->
+    <nav aria-label="Navegación móvil" class="sticky bottom-0 z-20 bg-light-surface-container-lowest border-t border-light-outline-variant px-4 py-2 grid grid-cols-3 gap-2">
+      <a href="#" class="flex flex-col items-center gap-0.5 py-1 text-light-primary">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">home</span>
+        <span class="font-body text-label-sm">Inicio</span>
+      </a>
+      <a href="#catalogo-movil" class="flex flex-col items-center gap-0.5 py-1 text-light-on-surface-variant">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">menu_book</span>
+        <span class="font-body text-label-sm">Catálogo</span>
+      </a>
+      <a href="#mis-prestamos" class="flex flex-col items-center gap-0.5 py-1 text-light-on-surface-variant">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">bookmark</span>
+        <span class="font-body text-label-sm">Préstamos</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    (function () {
+      var toast = document.getElementById('mobile-toast');
+      var toastText = document.getElementById('mobile-toast-text');
+      document.getElementById('mobile-toast-close').addEventListener('click', function () {
+        toast.hidden = true;
+      });
+      function showToast(msg) {
+        toastText.textContent = msg;
+        toast.hidden = false;
+      }
+
+      document.querySelectorAll('.btn-renew').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          showToast('Renovación confirmada para "' + btn.getAttribute('data-renew') + '" (RF3).');
+        });
+      });
+
+      var searchInput = document.getElementById('mobile-search');
+      var activeMat = 'all';
+      var chips = document.querySelectorAll('.mat-chip');
+
+      function filterMobile() {
+        var q = searchInput.value.trim().toLowerCase();
+        document.querySelectorAll('.mobile-book').forEach(function (card) {
+          var matchQ = q === '' || card.textContent.toLowerCase().indexOf(q) !== -1;
+          var matchM = activeMat === 'all' || card.getAttribute('data-materia') === activeMat;
+          card.hidden = !(matchQ && matchM);
+        });
+      }
+
+      searchInput.addEventListener('input', filterMobile);
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          activeMat = chip.getAttribute('data-mat');
+          chips.forEach(function (c) {
+            var active = c === chip;
+            c.className = active
+              ? 'mat-chip px-3 py-1 rounded-full bg-light-primary text-light-on-primary font-body text-label-sm'
+              : 'mat-chip px-3 py-1 rounded-full bg-light-surface-container-low text-light-on-surface-variant border border-light-outline-variant font-body text-label-sm';
+          });
+          filterMobile();
+        });
+      });
+
+      // Tema Claro / Oscuro reactivo con la paleta botánica
+      function applyTheme(isDark) {
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('sibu_theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('sibu_theme', 'light');
+        }
+        var icon = document.getElementById('theme-toggle-icon');
+        if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+      }
+
+      var saved = localStorage.getItem('sibu_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = saved ? (saved === 'dark') : prefersDark;
+      applyTheme(isDark);
+
+      var toggleBtn = document.getElementById('theme-toggle-btn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function () {
+          var currentDark = document.documentElement.classList.contains('dark');
+          applyTheme(!currentDark);
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

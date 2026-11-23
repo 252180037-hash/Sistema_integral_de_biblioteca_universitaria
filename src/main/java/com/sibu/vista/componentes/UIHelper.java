@@ -77,9 +77,11 @@ public final class UIHelper {
         JLabel lblTitulo = new JLabel(titulo);
         lblTitulo.setFont(FUENTE_TITULO);
 
+        lblTitulo.setForeground(TemaUtil.getColorTextoPrincipal());
+
         JLabel lblDesc = new JLabel(descripcion);
         lblDesc.setFont(FUENTE_SUBTITULO);
-        lblDesc.setForeground(new Color(100, 116, 139));
+        lblDesc.setForeground(TemaUtil.getColorTextoSecundario());
 
         panel.add(lblTitulo);
         panel.add(javax.swing.Box.createVerticalStrut(3));

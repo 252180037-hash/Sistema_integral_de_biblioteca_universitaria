@@ -160,7 +160,7 @@ public class CirculacionPanel extends JPanel {
         c.gridx = 1; c.gridy = fila++; c.gridwidth = 2;
         lblNombreLectorInfo = new JLabel("Ingrese la identificación y presione Verificar.");
         lblNombreLectorInfo.setFont(UIHelper.FUENTE_SUBTITULO);
-        lblNombreLectorInfo.setForeground(new Color(100, 116, 139));
+        lblNombreLectorInfo.setForeground(TemaUtil.getColorTextoSecundario());
         tarjeta.add(lblNombreLectorInfo, c);
 
         c.gridwidth = 1;
@@ -184,7 +184,7 @@ public class CirculacionPanel extends JPanel {
         c.gridx = 1; c.gridy = fila++; c.gridwidth = 2;
         lblLibroInfo = new JLabel("Escanee o ingrese el código y presione Verificar.");
         lblLibroInfo.setFont(UIHelper.FUENTE_SUBTITULO);
-        lblLibroInfo.setForeground(new Color(100, 116, 139));
+        lblLibroInfo.setForeground(TemaUtil.getColorTextoSecundario());
         tarjeta.add(lblLibroInfo, c);
 
         c.gridwidth = 1;
@@ -320,9 +320,9 @@ public class CirculacionPanel extends JPanel {
             txtCodigoEjemplar.setText("");
             txtObservacionesPrestamo.setText("");
             lblNombreLectorInfo.setText("Ingrese la identificación y presione Verificar.");
-            lblNombreLectorInfo.setForeground(new Color(100, 116, 139));
+            lblNombreLectorInfo.setForeground(TemaUtil.getColorTextoSecundario());
             lblLibroInfo.setText("Escanee o ingrese el código y presione Verificar.");
-            lblLibroInfo.setForeground(new Color(100, 116, 139));
+            lblLibroInfo.setForeground(TemaUtil.getColorTextoSecundario());
             lectorSeleccionado = null;
             ejemplarSeleccionado = null;
 

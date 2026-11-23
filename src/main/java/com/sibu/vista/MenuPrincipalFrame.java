@@ -106,7 +106,7 @@ public class MenuPrincipalFrame extends JFrame {
 
         JLabel lblSub = new JLabel("Biblioteca Universitaria", SwingConstants.LEFT);
         lblSub.setFont(UIHelper.FUENTE_SUBTITULO);
-        lblSub.setForeground(new Color(100, 116, 139));
+        lblSub.setForeground(TemaUtil.getColorTextoSecundario());
 
         sidebar.add(lblLogo);
         sidebar.add(Box.createVerticalStrut(2));
@@ -126,7 +126,7 @@ public class MenuPrincipalFrame extends JFrame {
 
         JLabel lblIdent = new JLabel("ID: " + usuarioActual.getIdentificacion());
         lblIdent.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        lblIdent.setForeground(new Color(100, 116, 139));
+        lblIdent.setForeground(TemaUtil.getColorTextoSecundario());
 
         cardUser.add(lblNombre);
         cardUser.add(Box.createVerticalStrut(2));
@@ -260,7 +260,7 @@ public class MenuPrincipalFrame extends JFrame {
 
         JLabel l2 = new JLabel(subtitulo, SwingConstants.CENTER);
         l2.setFont(UIHelper.FUENTE_REGULAR);
-        l2.setForeground(new Color(100, 116, 139));
+        l2.setForeground(TemaUtil.getColorTextoSecundario());
         l2.setAlignmentX(CENTER_ALIGNMENT);
 
         tarjeta.add(Box.createVerticalGlue());
@@ -318,13 +318,20 @@ public class MenuPrincipalFrame extends JFrame {
         return switch (rol) {
             case ADMINISTRADOR -> TemaUtil.COLOR_PRIMARIO;
             case BIBLIOTECARIO -> TemaUtil.COLOR_EXITO;
-            case LECTOR -> new Color(100, 116, 139);
+            case LECTOR -> TemaUtil.COLOR_SAGE_GREEN;
         };
     }
 
     private void alternarTema() {
         boolean oscuro = TemaUtil.alternarTema();
         btnAlternarTema.setText(oscuro ? "Modo Claro" : "Modo Oscuro");
+        for (JButton b : botonesMenu) {
+            if (b.getFont().isBold()) {
+                b.setForeground(TemaUtil.getColorPrimario());
+            } else {
+                b.setForeground(null);
+            }
+        }
     }
 
     private void cerrarSesion() {

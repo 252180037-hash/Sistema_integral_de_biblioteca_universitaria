@@ -1,0 +1,51 @@
+/* ===================================================================
+   SIBU - Paleta Botánica Institucional (ISO/IEC 25010:2023 Usabilidad)
+   =================================================================== */
+
+/* CSS HEX */
+:root {
+  --tea-green: #c9f2c7ff;
+  --light-green: #aceca1ff;
+  --muted-olive: #96be8cff;
+  --sage-green: #629460ff;
+  --evergreen: #243119ff;
+
+  /* CSS HSL */
+  --tea-green-hsl: hsla(117, 62%, 86%, 1);
+  --light-green-hsl: hsla(111, 66%, 78%, 1);
+  --muted-olive-hsl: hsla(108, 28%, 65%, 1);
+  --sage-green-hsl: hsla(118, 21%, 48%, 1);
+  --evergreen-hsl: hsla(93, 32%, 15%, 1);
+
+  /* SCSS HEX */
+  $tea-green: #c9f2c7ff;
+  $light-green: #aceca1ff;
+  $muted-olive: #96be8cff;
+  $sage-green: #629460ff;
+  $evergreen: #243119ff;
+
+  /* SCSS HSL */
+  $tea-green: hsla(117, 62%, 86%, 1);
+  $light-green: hsla(111, 66%, 78%, 1);
+  $muted-olive: hsla(108, 28%, 65%, 1);
+  $sage-green: hsla(118, 21%, 48%, 1);
+  $evergreen: hsla(93, 32%, 15%, 1);
+
+  /* SCSS RGB */
+  $tea-green: rgba(201, 242, 199, 1);
+  $light-green: rgba(172, 236, 161, 1);
+  $muted-olive: rgba(150, 190, 140, 1);
+  $sage-green: rgba(98, 148, 96, 1);
+  $evergreen: rgba(36, 49, 25, 1);
+
+  /* SCSS Gradients */
+  $gradient-top: linear-gradient(0deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-right: linear-gradient(90deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-bottom: linear-gradient(180deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-left: linear-gradient(270deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-top-right: linear-gradient(45deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-bottom-right: linear-gradient(135deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-top-left: linear-gradient(225deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-bottom-left: linear-gradient(315deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  $gradient-radial: radial-gradient(#c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+}

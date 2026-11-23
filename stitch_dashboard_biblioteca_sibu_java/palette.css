@@ -1,0 +1,163 @@
+/* ===================================================================
+   SIBU - Paleta Botánica Institucional (ISO/IEC 25010:2023 Usabilidad)
+   =================================================================== */
+
+/* CSS HEX */
+:root {
+  --tea-green: #c9f2c7ff;
+  --light-green: #aceca1ff;
+  --muted-olive: #96be8cff;
+  --sage-green: #629460ff;
+  --evergreen: #243119ff;
+
+  /* CSS HSL */
+  --tea-green-hsl: hsla(117, 62%, 86%, 1);
+  --light-green-hsl: hsla(111, 66%, 78%, 1);
+  --muted-olive-hsl: hsla(108, 28%, 65%, 1);
+  --sage-green-hsl: hsla(118, 21%, 48%, 1);
+  --evergreen-hsl: hsla(93, 32%, 15%, 1);
+
+  /* CSS RGB */
+  --tea-green-rgb: rgba(201, 242, 199, 1);
+  --light-green-rgb: rgba(172, 236, 161, 1);
+  --muted-olive-rgb: rgba(150, 190, 140, 1);
+  --sage-green-rgb: rgba(98, 148, 96, 1);
+  --evergreen-rgb: rgba(36, 49, 25, 1);
+
+  /* CSS Gradients */
+  --gradient-top: linear-gradient(0deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-right: linear-gradient(90deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-bottom: linear-gradient(180deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-left: linear-gradient(270deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-top-right: linear-gradient(45deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-bottom-right: linear-gradient(135deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-top-left: linear-gradient(225deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-bottom-left: linear-gradient(315deg, #c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+  --gradient-radial: radial-gradient(#c9f2c7ff, #aceca1ff, #96be8cff, #629460ff, #243119ff);
+
+  /* Semantic Tokens - Modo Claro */
+  --app-bg: #F4FBF2;
+  --app-surface: #FFFFFF;
+  --app-surface-low: #EBF5E8;
+  --app-surface-container: #E2F0DE;
+  --app-surface-high: #DAE9D6;
+  --app-on-surface: #243119;
+  --app-on-surface-variant: #3D4B31;
+  --app-outline: #72796E;
+  --app-outline-variant: #96BE8C;
+  --app-primary: #376637;
+  --app-on-primary: #FFFFFF;
+  --app-primary-container: #629460;
+  --app-secondary-container: #C9F2C7;
+  --app-on-secondary-container: #243119;
+  --app-success: #146C2E;
+  --app-warning: #8C5000;
+  --app-danger: #BA1A1A;
+}
+
+/* Semantic Tokens - Modo Oscuro */
+html.dark {
+  --app-bg: #0B1603;
+  --app-surface: #17230C;
+  --app-surface-low: #131F09;
+  --app-surface-container: #1D2A12;
+  --app-surface-high: #212E16;
+  --app-on-surface: #D8E8C4;
+  --app-on-surface-variant: #C1C9BC;
+  --app-outline: #8B9388;
+  --app-outline-variant: #41493F;
+  --app-primary: #ACECA1;
+  --app-on-primary: #243119;
+  --app-primary-container: #629460;
+  --app-secondary-container: #2C4F27;
+  --app-on-secondary-container: #C9F2C7;
+  --app-success: #146C2E;
+  --app-warning: #FFDCBE;
+  --app-danger: #FFB4AB;
+}
+
+/* Transiciones suaves de cambio de tema */
+body {
+  transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1), color 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Reglas reactivas para elementos en modo oscuro */
+html.dark body {
+  background-color: var(--app-bg) !important;
+  color: var(--app-on-surface) !important;
+}
+
+html.dark .bg-light-surface {
+  background-color: var(--app-bg) !important;
+}
+
+html.dark .bg-light-surface-container-low {
+  background-color: var(--app-surface-low) !important;
+}
+
+html.dark .bg-light-surface-container {
+  background-color: var(--app-surface-container) !important;
+}
+
+html.dark .bg-light-surface-container-high {
+  background-color: var(--app-surface-high) !important;
+}
+
+html.dark .bg-light-surface-container-lowest {
+  background-color: var(--app-surface) !important;
+}
+
+html.dark .bg-light-surface-variant {
+  background-color: #212E16 !important;
+}
+
+html.dark .text-light-on-surface {
+  color: var(--app-on-surface) !important;
+}
+
+html.dark .text-light-on-surface-variant {
+  color: var(--app-on-surface-variant) !important;
+}
+
+html.dark .border-light-outline-variant {
+  border-color: var(--app-outline-variant) !important;
+}
+
+html.dark .border-light-outline {
+  border-color: var(--app-outline) !important;
+}
+
+html.dark .bg-light-primary {
+  background-color: var(--app-primary) !important;
+  color: var(--app-on-primary) !important;
+}
+
+html.dark .text-light-primary {
+  color: var(--app-primary) !important;
+}
+
+html.dark .bg-light-secondary-container {
+  background-color: var(--app-secondary-container) !important;
+  color: var(--app-on-secondary-container) !important;
+}
+
+html.dark .text-light-on-secondary-container {
+  color: var(--app-on-secondary-container) !important;
+}
+
+html.dark input, 
+html.dark select, 
+html.dark textarea {
+  background-color: var(--app-surface) !important;
+  color: var(--app-on-surface) !important;
+  border-color: var(--app-outline-variant) !important;
+}
+
+html.dark table th {
+  background-color: var(--app-surface-high) !important;
+  color: var(--app-on-surface) !important;
+}
+
+html.dark table tr:hover {
+  background-color: var(--app-surface-high) !important;
+}

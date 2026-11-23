@@ -89,7 +89,7 @@ public class LoginFrame extends JFrame {
 
         JLabel lblSubtitulo = new JLabel("Sistema Integral de Biblioteca Universitaria", SwingConstants.CENTER);
         lblSubtitulo.setFont(UIHelper.FUENTE_SUBTITULO);
-        lblSubtitulo.setForeground(new Color(100, 116, 139));
+        lblSubtitulo.setForeground(TemaUtil.getColorTextoSecundario());
         lblSubtitulo.setAlignmentX(CENTER_ALIGNMENT);
 
         JLabel lblInstruccion = new JLabel("Ingrese sus credenciales institucionales", SwingConstants.CENTER);

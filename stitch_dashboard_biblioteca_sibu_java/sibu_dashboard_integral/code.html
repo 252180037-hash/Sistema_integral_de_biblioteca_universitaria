@@ -1,0 +1,859 @@
+<!DOCTYPE html><html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIBU — Dashboard Integral</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'tea-green': '#C9F2C7',
+        'light-green': '#ACECA1',
+        'muted-olive': '#96BE8C',
+        'sage-green': '#629460',
+        'evergreen': '#243119',
+        'success': '#146C2E',
+        'on-success': '#FFFFFF',
+        'success-container': '#C9F2C7',
+        'on-success-container': '#243119',
+        'warning': '#8C5000',
+        'on-warning': '#FFFFFF',
+        'warning-container': '#FFDCBE',
+        'on-warning-container': '#2C1600',
+        'light-primary': '#376637',
+        'light-on-primary': '#FFFFFF',
+        'light-primary-container': '#629460',
+        'light-on-primary-container': '#212121',
+        'light-secondary': '#43673D',
+        'light-on-secondary': '#FFFFFF',
+        'light-secondary-container': '#C9F2C7',
+        'light-on-secondary-container': '#243119',
+        'light-tertiary': '#89475F',
+        'light-on-tertiary': '#FFFFFF',
+        'light-tertiary-container': '#A65F77',
+        'light-on-tertiary-container': '#FFFFFF',
+        'light-error': '#BA1A1A',
+        'light-on-error': '#FFFFFF',
+        'light-error-container': '#FFDAD6',
+        'light-on-error-container': '#690005',
+        'light-background': '#F4FBF2',
+        'light-on-background': '#243119',
+        'light-surface': '#F4FBF2',
+        'light-surface-dim': '#D5E4D1',
+        'light-surface-bright': '#FFFFFF',
+        'light-surface-container-lowest': '#FFFFFF',
+        'light-surface-container-low': '#EBF5E8',
+        'light-surface-container': '#E2F0DE',
+        'light-surface-container-high': '#DAE9D6',
+        'light-surface-container-highest': '#D1E2CC',
+        'light-on-surface': '#243119',
+        'light-surface-variant': '#DDE5D8',
+        'light-on-surface-variant': '#3D4B31',
+        'light-outline': '#72796E',
+        'light-outline-variant': '#96BE8C',
+        'light-inverse-surface': '#243119',
+        'light-inverse-on-surface': '#E6F6D2',
+        'light-inverse-primary': '#ACECA1',
+        'dark-primary': '#ACECA1',
+        'dark-on-primary': '#243119',
+        'dark-primary-container': '#629460',
+        'dark-on-primary-container': '#212121',
+        'dark-secondary': '#96BE8C',
+        'dark-on-secondary': '#243119',
+        'dark-secondary-container': '#2C4F27',
+        'dark-on-secondary-container': '#C9F2C7',
+        'dark-tertiary': '#FFB0C9',
+        'dark-on-tertiary': '#541C33',
+        'dark-tertiary-container': '#C67A94',
+        'dark-on-tertiary-container': '#410C23',
+        'dark-error': '#FFB4AB',
+        'dark-on-error': '#690005',
+        'dark-error-container': '#93000A',
+        'dark-on-error-container': '#FFDAD6',
+        'dark-background': '#0B1603',
+        'dark-on-background': '#D8E8C4',
+        'dark-surface': '#0B1603',
+        'dark-surface-dim': '#0B1603',
+        'dark-surface-bright': '#303D24',
+        'dark-surface-container-lowest': '#061101',
+        'dark-surface-container-low': '#131F09',
+        'dark-surface-container': '#17230C',
+        'dark-surface-container-high': '#212E16',
+        'dark-surface-container-highest': '#2B3920',
+        'dark-on-surface': '#D8E8C4',
+        'dark-surface-variant': '#41493F',
+        'dark-on-surface-variant': '#C1C9BC',
+        'dark-outline': '#8B9388',
+        'dark-outline-variant': '#41493F',
+        'dark-inverse-surface': '#D8E8C4',
+        'dark-inverse-on-surface': '#243119',
+        'dark-inverse-primary': '#376637',
+      },
+      borderRadius: {
+        'sm': '4px',
+        'DEFAULT': '8px',
+        'md': '12px',
+        'lg': '16px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '16px',
+        'gutter-lg': '24px',
+        'gutter-xl': '32px',
+        'section': '48px',
+        'page-margin': '24px',
+      },
+      fontFamily: {
+        'display': ['"Red Hat Text"', 'sans-serif'],
+        'headline': ['"Red Hat Text"', 'sans-serif'],
+        'title': ['"Instrument Sans"', 'sans-serif'],
+        'body': ['"Instrument Sans"', 'sans-serif'],
+        'label': ['"Instrument Sans"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-md': ['36px', { lineHeight: '44px', letterSpacing: '-0.5px', fontWeight: '700' }],
+        'display-md-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.25px', fontWeight: '700' }],
+        'headline-lg': ['24px', { lineHeight: '32px', letterSpacing: '-0.25px', fontWeight: '600' }],
+        'headline-md': ['18px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '600' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '500' }],
+        'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.25px', fontWeight: '500' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '500' }],
+      },
+      transitionDuration: {
+        'state-change': '120ms',
+        'surface-enter': '220ms',
+        'surface-exit': '150ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'surface-enter': '0ms',
+        'surface-exit': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-exit': 'cubic-bezier(0.3, 0, 1, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link rel="stylesheet" href="../palette.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Red+Hat+Text:wght@600;700&amp;family=Spline+Sans+Mono:wght@500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="bg-light-surface text-light-on-surface font-body antialiased">
+
+  <div class="min-h-[1024px] flex flex-col lg:flex-row" data-stitch-vh="min-h-[1024px]===min-h-screen">
+    <!-- Persistent Sidebar Navigation -->
+    <aside class="w-full lg:w-64 shrink-0 bg-light-surface-container-low border-b lg:border-b-0 lg:border-r border-light-outline-variant flex flex-col justify-between p-5 gap-6">
+      <div class="flex flex-col gap-6">
+        <!-- Brand Header -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded bg-light-primary text-light-on-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[22px]" aria-hidden="true">local_library</span>
+          </div>
+          <div class="min-w-0">
+            <p class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">SIBU</p>
+            <p class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">Java · 5 Capas</p>
+          </div>
+        </div>
+
+        <!-- Role Switcher (RF2 & RF6) -->
+        <div class="flex flex-col gap-2">
+          <span class="font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Perfil activo (RF2 / RF6)</span>
+          <div data-component-id="tabs-horizontal" data-component-type="tabs" data-component-variant="horizontal" class="w-full">
+            <div role="tablist" aria-label="Perfiles del sistema" class="grid grid-cols-3 gap-1 p-1 rounded bg-light-surface-container border border-light-outline-variant">
+              <button role="tab" id="role-admin" data-role="admin" aria-selected="true" class="role-tab px-2 py-1.5 rounded-sm bg-light-surface-container-lowest text-light-primary border border-light-outline-variant text-center transition-colors duration-state-change">
+                <span class="font-body text-label-sm" data-design-text-token="label-sm">Admin</span>
+              </button>
+              <button role="tab" id="role-bibliotecario" data-role="bibliotecario" aria-selected="false" class="role-tab px-2 py-1.5 rounded-sm text-light-on-surface-variant hover:text-light-on-surface text-center transition-colors duration-state-change">
+                <span class="font-body text-label-sm" data-design-text-token="label-sm">Biblio</span>
+              </button>
+              <button role="tab" id="role-lector" data-role="lector" aria-selected="false" class="role-tab px-2 py-1.5 rounded-sm text-light-on-surface-variant hover:text-light-on-surface text-center transition-colors duration-state-change">
+                <span class="font-body text-label-sm" data-design-text-token="label-sm">Lector</span>
+              </button>
+            </div>
+          </div>
+          <p id="role-summary" class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">
+            Acceso total: catálogo, usuarios, bitácora y respaldos.
+          </p>
+        </div>
+
+        <!-- Primary Navigation -->
+        <nav aria-label="Navegación principal" class="flex flex-col gap-5">
+          <div class="flex flex-col gap-1">
+            <span class="px-2.5 font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Operación SIBU</span>
+            <a href="#resumen" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded bg-light-secondary-container text-light-on-secondary-container">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">dashboard</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Resumen general</span>
+              </span>
+            </a>
+            <a href="#reportes" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">swap_horiz</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Circulación</span>
+              </span>
+              <span class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">RF3</span>
+            </a>
+            <a href="#reportes" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">table_chart</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Reportes CSV</span>
+              </span>
+              <span class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">RF5</span>
+            </a>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <span class="px-2.5 font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Calidad y Sistema</span>
+            <a href="#requisitos" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">fact_check</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Matriz RF1–RF8</span>
+              </span>
+            </a>
+            <a href="#iso-calidad" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">verified_user</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">ISO/IEC 25010</span>
+              </span>
+            </a>
+            <a href="#bitacora" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">history</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Bitácora</span>
+              </span>
+              <span class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">RF7</span>
+            </a>
+            <a href="#respaldos" class="flex items-center justify-between gap-2 px-2.5 py-2 rounded text-light-on-surface-variant hover:bg-light-surface-container hover:text-light-on-surface transition-colors duration-state-change">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">backup</span>
+                <span class="font-body text-label-lg" data-design-text-token="label-lg">Respaldos BD</span>
+              </span>
+              <span class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">RF8</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Architecture Footer Pill -->
+      <div class="p-3 rounded bg-light-surface-container border border-light-outline-variant flex flex-col gap-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-body text-label-sm text-light-on-surface" data-design-text-token="label-sm">MySQL Red Local</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm" data-design-text-token="label-sm">Activo</span>
+        </div>
+        <p class="font-mono text-mono-sm text-light-on-surface-variant" data-design-text-token="mono-sm">PreparedStatement · JDBC</p>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Top Header -->
+      <header class="sticky top-0 z-20 bg-light-surface-container-lowest border-b border-light-outline-variant px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col gap-0.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="font-headline text-headline-lg text-light-on-surface" data-design-text-token="headline-lg">Panel Integral SIBU</h1>
+            <span id="header-role-badge" data-component-id="badge-success" data-component-type="badge" data-component-variant="success" role="status" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-light-secondary-container text-light-on-secondary-container">
+              <span class="font-body text-label-sm" data-design-text-token="label-sm">Sesión: Administrador</span>
+            </span>
+          </div>
+          <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">
+            Project Charter SIBU · Operación bibliotecaria (RF1–RF8) y calidad ISO/IEC 25010:2023
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Catalog Search RF4 -->
+          <div class="relative min-w-[260px] flex-1 md:flex-initial">
+            <span class="material-symbols-outlined text-[18px] text-light-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true">search</span>
+            <input id="catalog-search" type="search" placeholder="Buscar título, autor, ISBN o materia (RF4)..." aria-label="Buscar en catálogo bibliográfico" class="w-full pl-9 pr-3 py-2 rounded bg-light-surface-container-low border border-light-outline-variant font-body text-body-sm text-light-on-surface placeholder:text-light-on-surface-variant focus:border-light-primary focus:ring-1 focus:ring-light-primary focus:outline-none">
+          </div>
+
+          <button id="theme-toggle-btn" type="button" aria-label="Cambiar tema" class="inline-flex items-center gap-1.5 px-3 py-2 rounded border border-light-outline-variant font-body text-label-sm hover:bg-light-surface-container transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]" id="theme-toggle-icon">dark_mode</span>
+            <span id="theme-toggle-label">Modo Oscuro</span>
+          </button>
+
+          <a href="../index.html" class="inline-flex items-center gap-1.5 px-3 py-2 rounded border border-light-outline-variant font-body text-label-sm hover:bg-light-surface-container transition-colors duration-state-change">
+            <span class="material-symbols-outlined text-[18px]">apps</span>
+            <span>Módulos</span>
+          </a>
+
+          <button id="btn-export-csv" data-component-id="button-with-icon" data-component-type="button" data-component-variant="with-icon" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-light-primary text-light-on-primary hover:bg-light-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2 transition-colors duration-state-change ease-state-change">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>
+            <span class="font-body text-label-lg" data-design-text-token="label-lg">Exportar CSV</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main id="resumen" class="p-6 flex flex-col gap-6">
+        <!-- Feedback Banner (hidden until action) -->
+        <div id="action-toast" hidden class="px-4 py-3 rounded bg-success-container text-on-success-container border border-light-outline-variant flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check_circle</span>
+            <p id="action-toast-text" class="font-body text-body-sm" data-design-text-token="body-sm">Acción completada.</p>
+          </div>
+          <button id="action-toast-close" type="button" class="font-body text-label-sm underline">Cerrar</button>
+        </div>
+
+        <!-- Row 1: 4 Glanceable KPIs -->
+        <section aria-label="Indicadores clave" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+          <article data-component-id="card-elevated" data-component-type="card" data-component-variant="outlined" class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-3">
+            <header class="flex items-center justify-between gap-2">
+              <h2 class="font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Ejemplares en catálogo</h2>
+              <span class="material-symbols-outlined text-[20px] text-light-primary" aria-hidden="true">menu_book</span>
+            </header>
+            <p class="font-headline text-display-md text-light-on-surface tabular-nums" data-design-text-token="display-md">14,820</p>
+            <p class="font-body text-body-sm text-light-on-surface-variant text-balance" data-design-text-token="body-sm">RF1 · 12,410 disponibles · 2,410 prestados</p>
+          </article>
+
+          <article data-component-id="card-elevated" data-component-type="card" data-component-variant="outlined" class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-3">
+            <header class="flex items-center justify-between gap-2">
+              <h2 class="font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Circulación activa hoy</h2>
+              <span class="material-symbols-outlined text-[20px] text-light-tertiary" aria-hidden="true">sync_alt</span>
+            </header>
+            <div class="flex items-baseline gap-2.5 flex-wrap">
+              <p class="font-headline text-display-md text-light-on-surface tabular-nums" data-design-text-token="display-md">342</p>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-light-error-container text-light-on-error-container font-body text-label-sm tabular-nums" data-design-text-token="label-sm">18 vencidos</span>
+            </div>
+            <p class="font-body text-body-sm text-light-on-surface-variant text-balance" data-design-text-token="body-sm">RF3 · Préstamos, renovaciones y sanciones</p>
+          </article>
+
+          <article data-component-id="card-elevated" data-component-type="card" data-component-variant="outlined" class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-3">
+            <header class="flex items-center justify-between gap-2">
+              <h2 class="font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Cobertura funcional</h2>
+              <span class="material-symbols-outlined text-[20px] text-success" aria-hidden="true">task_alt</span>
+            </header>
+            <p class="font-headline text-display-md text-light-on-surface tabular-nums" data-design-text-token="display-md">8 / 8</p>
+            <p class="font-body text-body-sm text-light-on-surface-variant text-balance" data-design-text-token="body-sm">RF1–RF8 · Arquitectura 5 capas Java</p>
+          </article>
+
+          <article data-component-id="card-elevated" data-component-type="card" data-component-variant="outlined" class="h-full bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-3">
+            <header class="flex items-center justify-between gap-2">
+              <h2 class="font-body text-label-sm text-light-on-surface-variant" data-design-text-token="label-sm">Latencia búsqueda (p95)</h2>
+              <span class="material-symbols-outlined text-[20px] text-light-primary" aria-hidden="true">speed</span>
+            </header>
+            <div class="flex items-baseline gap-2.5 flex-wrap">
+              <p class="font-headline text-display-md text-light-on-surface tabular-nums" data-design-text-token="display-md">0.42 s</p>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm" data-design-text-token="label-sm">Meta &lt; 2 s</span>
+            </div>
+            <p class="font-body text-body-sm text-light-on-surface-variant text-balance" data-design-text-token="body-sm">ISO 25010 · 99.4% disp. · RPO 12 h</p>
+          </article>
+        </section>
+
+        <!-- Row 2: Reports & Circulation (7 cols) + ISO/IEC 25010:2023 Quality Matrix (5 cols) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: RF5 5 Key Reports + Circulation -->
+          <article id="reportes" class="lg:col-span-7 bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col gap-4">
+            <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Reportes clave y circulación (RF3 / RF5)</h2>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">5 reportes operativos con visualización tabular y exportación CSV</p>
+              </div>
+              <button id="btn-table-csv" data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" type="button" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-light-surface-container-lowest text-light-primary border border-light-outline-variant hover:bg-light-surface-container-low transition-colors duration-state-change shrink-0">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">csv</span>
+                <span class="font-body text-label-sm" data-design-text-token="label-sm">Descargar CSV</span>
+              </button>
+            </header>
+
+            <!-- 5 Report Tabs -->
+            <div role="tablist" aria-label="Reportes RF5" class="flex flex-wrap gap-1.5 pb-2 border-b border-light-outline-variant">
+              <button role="tab" data-report="vencidos" aria-selected="true" class="report-tab px-3 py-1.5 rounded-sm bg-light-primary text-light-on-primary font-body text-label-sm transition-colors duration-state-change">Préstamos vencidos</button>
+              <button role="tab" data-report="periodo" aria-selected="false" class="report-tab px-3 py-1.5 rounded-sm bg-light-surface-container text-light-on-surface-variant hover:text-light-on-surface font-body text-label-sm transition-colors duration-state-change">Préstamos por periodo</button>
+              <button role="tab" data-report="mas-prestados" aria-selected="false" class="report-tab px-3 py-1.5 rounded-sm bg-light-surface-container text-light-on-surface-variant hover:text-light-on-surface font-body text-label-sm transition-colors duration-state-change">Más prestados</button>
+              <button role="tab" data-report="sancionados" aria-selected="false" class="report-tab px-3 py-1.5 rounded-sm bg-light-surface-container text-light-on-surface-variant hover:text-light-on-surface font-body text-label-sm transition-colors duration-state-change">Usuarios sancionados</button>
+              <button role="tab" data-report="materia" aria-selected="false" class="report-tab px-3 py-1.5 rounded-sm bg-light-surface-container text-light-on-surface-variant hover:text-light-on-surface font-body text-label-sm transition-colors duration-state-change">Por materia</button>
+            </div>
+
+            <!-- Table Container -->
+            <div data-component-id="table-standard" data-component-type="table" data-component-variant="standard" class="border border-light-outline-variant rounded overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead id="report-thead" class="bg-light-surface-container-low border-b border-light-outline-variant">
+                    <tr>
+                      <th scope="col" class="px-3.5 py-2.5 font-body text-label-sm text-light-on-surface-variant">Ejemplar / ISBN</th>
+                      <th scope="col" class="px-3.5 py-2.5 font-body text-label-sm text-light-on-surface-variant">Lector</th>
+                      <th scope="col" class="px-3.5 py-2.5 font-body text-label-sm text-light-on-surface-variant">Retraso</th>
+                      <th scope="col" class="px-3.5 py-2.5 font-body text-label-sm text-light-on-surface-variant">Sanción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="report-tbody" class="divide-y divide-light-outline-variant">
+                    <tr class="hover:bg-light-surface-container-low transition-colors duration-state-change">
+                      <td class="px-3.5 py-2.5">
+                        <p class="font-body text-body-md text-light-on-surface">Ingeniería de Software (Sommerville)</p>
+                        <p class="font-mono text-mono-sm text-light-on-surface-variant">978-607-32-3579-2 · EJ-0412</p>
+                      </td>
+                      <td class="px-3.5 py-2.5 font-body text-body-sm text-light-on-surface">Valeria Mendoza</td>
+                      <td class="px-3.5 py-2.5 font-mono text-mono-sm text-light-error tabular-nums">5 días</td>
+                      <td class="px-3.5 py-2.5">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-light-error-container text-light-on-error-container font-body text-label-sm tabular-nums">$75.00</span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-light-surface-container-low transition-colors duration-state-change">
+                      <td class="px-3.5 py-2.5">
+                        <p class="font-body text-body-md text-light-on-surface">Fundamentos de Bases de Datos</p>
+                        <p class="font-mono text-mono-sm text-light-on-surface-variant">978-844-81-9033-0 · EJ-1184</p>
+                      </td>
+                      <td class="px-3.5 py-2.5 font-body text-body-sm text-light-on-surface">Diego Santillán</td>
+                      <td class="px-3.5 py-2.5 font-mono text-mono-sm text-light-tertiary tabular-nums">2 días</td>
+                      <td class="px-3.5 py-2.5">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-warning-container text-on-warning-container font-body text-label-sm tabular-nums">$30.00</span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-light-surface-container-low transition-colors duration-state-change">
+                      <td class="px-3.5 py-2.5">
+                        <p class="font-body text-body-md text-light-on-surface">Effective Java (3rd Edition)</p>
+                        <p class="font-mono text-mono-sm text-light-on-surface-variant">978-013-46-8599-1 · EJ-0093</p>
+                      </td>
+                      <td class="px-3.5 py-2.5 font-body text-body-sm text-light-on-surface">Camila Ortiz</td>
+                      <td class="px-3.5 py-2.5 font-mono text-mono-sm text-light-error tabular-nums">7 días</td>
+                      <td class="px-3.5 py-2.5">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-light-error-container text-light-on-error-container font-body text-label-sm tabular-nums">$105.00</span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-light-surface-container-low transition-colors duration-state-change">
+                      <td class="px-3.5 py-2.5">
+                        <p class="font-body text-body-md text-light-on-surface">Redes de Computadoras (Tanenbaum)</p>
+                        <p class="font-mono text-mono-sm text-light-on-surface-variant">978-607-32-0817-8 · EJ-0720</p>
+                      </td>
+                      <td class="px-3.5 py-2.5 font-body text-body-sm text-light-on-surface">Mateo Herrera</td>
+                      <td class="px-3.5 py-2.5 font-mono text-mono-sm text-light-tertiary tabular-nums">1 día</td>
+                      <td class="px-3.5 py-2.5">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-warning-container text-on-warning-container font-body text-label-sm tabular-nums">$15.00</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <!-- Right: ISO/IEC 25010:2023 Quality Matrix -->
+          <article id="iso-calidad" class="lg:col-span-5 bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-4">
+            <header class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">ISO/IEC 25010:2023</h2>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Criterios no funcionales y umbrales verificados</p>
+              </div>
+              <span class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm" data-design-text-token="label-sm">8/8 Cumple</span>
+            </header>
+
+            <div class="flex flex-col divide-y divide-light-outline-variant border border-light-outline-variant rounded">
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Idoneidad funcional</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">RF1 a RF8 completos en flujo</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-success tabular-nums">100%</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Eficiencia de desempeño</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">Índices BD + pool conexiones</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-success tabular-nums">p95 0.42 s</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Fiabilidad (JDBC)</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">Commit/rollback · RPO ≤ 24 h · RTO ≤ 4 h</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-success tabular-nums">99.4%</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Seguridad de la información</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">Hash+sal · PreparedStatement · Red local</p>
+                </div>
+                <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Auditado</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Usabilidad e interacción</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">Validaciones y confirmación al eliminar</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-success tabular-nums">94% éxito</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface">Mantenibilidad y flexibilidad</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">5 capas · Javadoc · JAR + SQL externo</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-light-primary">5 capas</span>
+              </div>
+              <div class="px-3.5 py-2.5 flex items-center justify-between gap-3 bg-light-surface-container-low">
+                <div>
+                  <p class="font-body text-label-lg text-light-on-surface-variant">Protección frente a daños (Safety)</p>
+                  <p class="font-body text-body-sm text-light-on-surface-variant">Exclusión justificada: sistema sin riesgo físico</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-light-on-surface-variant">N/A</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- Row 3: RF1-RF8 Matrix (7 cols) + Audit Log & Backup RF7/RF8 (5 cols) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: RF1 - RF8 Matrix -->
+          <article id="requisitos" class="lg:col-span-7 bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col gap-4">
+            <header class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Requisitos Funcionales (RF1–RF8)</h2>
+                <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Módulos del Project Charter SIBU y permisos por perfil</p>
+              </div>
+            </header>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF1 · Catálogo CRUD</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Operativo</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Alta, consulta, modificación y baja de libros y ejemplares físicos.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF2 · Usuarios y roles</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Operativo</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Permisos para administrador, bibliotecario y lector.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF3 · Circulación</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Operativo</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Préstamo, devolución, renovación y sanciones por retraso.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF4 · Búsqueda</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">0.42 s p95</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Filtros por título, autor, ISBN y materia con disponibilidad.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF5 · 5 Reportes CSV</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Operativo</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Visualización en tabla y exportación directa a archivo CSV.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF6 · Seguridad acceso</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Hash + Sal</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Inicio de sesión y restricción de funciones según rol.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF7 · Bitácora</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">Trazable</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Historial auditable de acciones críticas dentro del sistema.</p>
+              </div>
+
+              <div class="p-3.5 rounded bg-light-surface-container-low border border-light-outline-variant flex flex-col gap-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-mono text-mono-sm text-light-primary">RF8 · Datos y respaldo</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-success-container text-on-success-container font-body text-label-sm">RPO 12 h</span>
+                </div>
+                <p class="font-body text-body-sm text-light-on-surface-variant">Carga inicial con seeders, respaldo y restauración MySQL.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Right: Bitácora RF7 + Respaldos RF8 -->
+          <div class="lg:col-span-5 flex flex-col gap-4">
+            <!-- Bitácora RF7 -->
+            <article id="bitacora" class="bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col gap-3">
+              <header class="flex items-center justify-between gap-2">
+                <h2 class="font-headline text-headline-md text-light-on-surface" data-design-text-token="headline-md">Bitácora (RF7)</h2>
+                <span class="shrink-0 font-mono text-mono-sm text-light-on-surface-variant">En vivo</span>
+              </header>
+              <div class="flex flex-col divide-y divide-light-outline-variant">
+                <div class="py-2 flex items-start justify-between gap-2">
+                  <div>
+                    <p class="font-body text-body-sm text-light-on-surface">PRESTAMO_REGISTRADO · EJ-0412</p>
+                    <p class="font-body text-body-sm text-light-on-surface-variant">Bibliotecario: L. Navarro</p>
+                  </div>
+                  <span class="font-mono text-mono-sm text-light-on-surface-variant tabular-nums">18:42:10</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-2">
+                  <div>
+                    <p class="font-body text-body-sm text-light-on-surface">REPORTE_CSV_EXPORTADO · Vencidos</p>
+                    <p class="font-body text-body-sm text-light-on-surface-variant">Admin: R. Morales</p>
+                  </div>
+                  <span class="font-mono text-mono-sm text-light-on-surface-variant tabular-nums">18:15:04</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-2">
+                  <div>
+                    <p class="font-body text-body-sm text-light-on-surface">RESPALDO_BD_VERIFICADO · sibu_prod.sql</p>
+                    <p class="font-body text-body-sm text-light-on-surface-variant">Sistema · Transacción JDBC OK</p>
+                  </div>
+                  <span class="font-mono text-mono-sm text-light-on-surface-variant tabular-nums">15:00:00</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Administración de datos RF8 -->
+            <article id="respaldos" data-component-id="card-action" data-component-type="card" data-component-variant="action" class="bg-light-surface-container-lowest border border-light-outline-variant rounded p-5 flex flex-col justify-between gap-3 flex-1">
+              <header class="flex items-start justify-between gap-2">
+                <div>
+                  <h2 class="font-body text-title-md text-light-on-surface" data-design-text-token="title-md">Administración de datos (RF8)</h2>
+                  <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">Seeders iniciales, respaldo diario y restauración</p>
+                </div>
+                <span class="shrink-0 font-mono text-mono-sm text-success">RTO ≤ 4 h</span>
+              </header>
+              <p class="font-body text-body-sm text-light-on-surface-variant" data-design-text-token="body-sm">
+                Parámetros de conexión externos al JAR. Último respaldo SQL verificado hace 3 h 52 min.
+              </p>
+              <footer class="flex flex-wrap items-center gap-2 pt-2 border-t border-light-outline-variant">
+                <button id="btn-run-backup" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" type="button" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-light-primary text-light-on-primary hover:bg-light-primary-container transition-colors duration-state-change">
+                  <span class="font-body text-label-sm" data-design-text-token="label-sm">Ejecutar respaldo</span>
+                </button>
+                <button id="btn-run-seeder" data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" type="button" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-light-surface-container-lowest text-light-primary border border-light-outline-variant hover:bg-light-surface-container-low transition-colors duration-state-change">
+                  <span class="font-body text-label-sm" data-design-text-token="label-sm">Cargar seeders</span>
+                </button>
+              </footer>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var roleConfig = {
+        admin: {
+          badge: 'Sesión: Administrador',
+          summary: 'Acceso total: catálogo, usuarios, bitácora y respaldos.',
+          canBackup: true
+        },
+        bibliotecario: {
+          badge: 'Sesión: Bibliotecario',
+          summary: 'Circulación (RF3), catálogo (RF1) y reportes CSV (RF5).',
+          canBackup: false
+        },
+        lector: {
+          badge: 'Sesión: Lector',
+          summary: 'Búsqueda de catálogo (RF4) y consulta de préstamos propios.',
+          canBackup: false
+        }
+      };
+
+      var reportData = {
+        vencidos: {
+          headers: ['Ejemplar / ISBN', 'Lector', 'Retraso', 'Sanción'],
+          rows: [
+            ['Ingeniería de Software (Sommerville)', '978-607-32-3579-2 · EJ-0412', 'Valeria Mendoza', '5 días', '$75.00', 'error'],
+            ['Fundamentos de Bases de Datos', '978-844-81-9033-0 · EJ-1184', 'Diego Santillán', '2 días', '$30.00', 'warning'],
+            ['Effective Java (3rd Edition)', '978-013-46-8599-1 · EJ-0093', 'Camila Ortiz', '7 días', '$105.00', 'error'],
+            ['Redes de Computadoras (Tanenbaum)', '978-607-32-0817-8 · EJ-0720', 'Mateo Herrera', '1 día', '$15.00', 'warning']
+          ]
+        },
+        periodo: {
+          headers: ['Periodo', 'Préstamos', 'Devoluciones', 'Renovaciones'],
+          rows: [
+            ['Semana 47 (Nov 16–22)', 'Rango activo', '342', '318', '44', 'success'],
+            ['Semana 46 (Nov 09–15)', 'Cerrado', '389', '381', '51', 'success'],
+            ['Semana 45 (Nov 02–08)', 'Cerrado', '310', '304', '39', 'success'],
+            ['Semana 44 (Oct 26–Nov 01)', 'Cerrado', '295', '290', '28', 'success']
+          ]
+        },
+        'mas-prestados': {
+          headers: ['Título / ISBN', 'Materia', 'Préstamos', 'Disponibilidad'],
+          rows: [
+            ['Clean Code (Robert C. Martin)', '978-013-23-5088-4', 'Ingeniería SW', '84', '2 / 6 disp.', 'warning'],
+            ['Estructuras de Datos en Java', '978-849-03-5521-3', 'Programación', '71', '5 / 8 disp.', 'success'],
+            ['Sistemas Operativos Modernos', '978-607-32-0124-7', 'Sistemas', '63', '3 / 5 disp.', 'success'],
+            ['Java Concurrency in Practice', '978-032-13-4960-6', 'Java', '58', '1 / 4 disp.', 'warning']
+          ]
+        },
+        sancionados: {
+          headers: ['Lector / Matrícula', 'Motivo', 'Multa', 'Estado'],
+          rows: [
+            ['Camila Ortiz', 'MAT-2023-0891', '7 días de retraso (EJ-0093)', '$105.00', 'Bloqueado', 'error'],
+            ['Valeria Mendoza', 'MAT-2022-1402', '5 días de retraso (EJ-0412)', '$75.00', 'Bloqueado', 'error'],
+            ['Diego Santillán', 'MAT-2024-0318', '2 días de retraso (EJ-1184)', '$30.00', 'Pendiente', 'warning'],
+            ['Mateo Herrera', 'MAT-2023-1129', '1 día de retraso (EJ-0720)', '$15.00', 'Pendiente', 'warning']
+          ]
+        },
+        materia: {
+          headers: ['Materia / Área', 'Total ejemplares', 'En préstamo', 'Disponibles'],
+          rows: [
+            ['Ingeniería de Software', 'Área 005.1', '3,420', '610', '2,810 (82%)', 'success'],
+            ['Bases de Datos y Redes', 'Área 005.7', '2,910', '540', '2,370 (81%)', 'success'],
+            ['Matemáticas Discretas', 'Área 511.1', '4,180', '490', '3,690 (88%)', 'success'],
+            ['Arquitectura de Computadoras', 'Área 004.2', '4,310', '770', '3,540 (82%)', 'success']
+          ]
+        }
+      };
+
+      var roleTabs = document.querySelectorAll('.role-tab');
+      var roleSummary = document.getElementById('role-summary');
+      var headerBadge = document.getElementById('header-role-badge');
+      var btnBackup = document.getElementById('btn-run-backup');
+      var btnSeeder = document.getElementById('btn-run-seeder');
+
+      roleTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var role = tab.getAttribute('data-role');
+          roleTabs.forEach(function (t) {
+            var active = t === tab;
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+            t.className = active
+              ? 'role-tab px-2 py-1.5 rounded-sm bg-light-surface-container-lowest text-light-primary border border-light-outline-variant text-center transition-colors duration-state-change'
+              : 'role-tab px-2 py-1.5 rounded-sm text-light-on-surface-variant hover:text-light-on-surface text-center transition-colors duration-state-change';
+          });
+          var cfg = roleConfig[role];
+          roleSummary.textContent = cfg.summary;
+          headerBadge.querySelector('span').textContent = cfg.badge;
+          btnBackup.disabled = !cfg.canBackup;
+          btnSeeder.disabled = !cfg.canBackup;
+          btnBackup.classList.toggle('opacity-45', !cfg.canBackup);
+          btnSeeder.classList.toggle('opacity-45', !cfg.canBackup);
+        });
+      });
+
+      var reportTabs = document.querySelectorAll('.report-tab');
+      var reportThead = document.getElementById('report-thead');
+      var reportTbody = document.getElementById('report-tbody');
+      var activeReportKey = 'vencidos';
+
+      function badgeClass(tone) {
+        if (tone === 'error') return 'bg-light-error-container text-light-on-error-container';
+        if (tone === 'warning') return 'bg-warning-container text-on-warning-container';
+        return 'bg-success-container text-on-success-container';
+      }
+
+      function renderReport(key) {
+        activeReportKey = key;
+        var data = reportData[key];
+        reportThead.innerHTML = '<tr>' + data.headers.map(function (h) {
+          return '<th scope="col" class="px-3.5 py-2.5 font-body text-label-sm text-light-on-surface-variant">' + h + '</th>';
+        }).join('') + '</tr>';
+
+        reportTbody.innerHTML = data.rows.map(function (r) {
+          return '<tr class="hover:bg-light-surface-container-low transition-colors duration-state-change">' +
+            '<td class="px-3.5 py-2.5"><p class="font-body text-body-md text-light-on-surface">' + r[0] + '</p><p class="font-mono text-mono-sm text-light-on-surface-variant">' + r[1] + '</p></td>' +
+            '<td class="px-3.5 py-2.5 font-body text-body-sm text-light-on-surface">' + r[2] + '</td>' +
+            '<td class="px-3.5 py-2.5 font-mono text-mono-sm text-light-on-surface tabular-nums">' + r[3] + '</td>' +
+            '<td class="px-3.5 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full font-body text-label-sm tabular-nums ' + badgeClass(r[5]) + '">' + r[4] + '</span></td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      reportTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var key = tab.getAttribute('data-report');
+          reportTabs.forEach(function (t) {
+            var active = t === tab;
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+            t.className = active
+              ? 'report-tab px-3 py-1.5 rounded-sm bg-light-primary text-light-on-primary font-body text-label-sm transition-colors duration-state-change'
+              : 'report-tab px-3 py-1.5 rounded-sm bg-light-surface-container text-light-on-surface-variant hover:text-light-on-surface font-body text-label-sm transition-colors duration-state-change';
+          });
+          renderReport(key);
+        });
+      });
+
+      var searchInput = document.getElementById('catalog-search');
+      searchInput.addEventListener('input', function () {
+        var q = searchInput.value.trim().toLowerCase();
+        var rows = reportTbody.querySelectorAll('tr');
+        rows.forEach(function (row) {
+          row.hidden = q !== '' && row.textContent.toLowerCase().indexOf(q) === -1;
+        });
+      });
+
+      var toast = document.getElementById('action-toast');
+      var toastText = document.getElementById('action-toast-text');
+      document.getElementById('action-toast-close').addEventListener('click', function () {
+        toast.hidden = true;
+      });
+
+      function showToast(msg) {
+        toastText.textContent = msg;
+        toast.hidden = false;
+      }
+
+      document.getElementById('btn-export-csv').addEventListener('click', function () {
+        showToast('Reporte CSV "' + activeReportKey + '" generado con formato tabular RF5 (4 registros).');
+      });
+      document.getElementById('btn-table-csv').addEventListener('click', function () {
+        showToast('Exportación CSV lista para "' + activeReportKey + '" (RF5).');
+      });
+      btnBackup.addEventListener('click', function () {
+        showToast('Respaldo MySQL ejecutado con transacción JDBC confirmada (RF8 · RPO 0 h).');
+      });
+      btnSeeder.addEventListener('click', function () {
+        showToast('Seeders iniciales verificados sin duplicados (RF8).');
+      });
+
+      // Tema Claro / Oscuro reactivo con la paleta botánica
+      function applyTheme(isDark) {
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('sibu_theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('sibu_theme', 'light');
+        }
+        var icon = document.getElementById('theme-toggle-icon');
+        var label = document.getElementById('theme-toggle-label');
+        if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        if (label) label.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      }
+
+      var saved = localStorage.getItem('sibu_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = saved ? (saved === 'dark') : prefersDark;
+      applyTheme(isDark);
+
+      var toggleBtn = document.getElementById('theme-toggle-btn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function () {
+          var currentDark = document.documentElement.classList.contains('dark');
+          applyTheme(!currentDark);
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

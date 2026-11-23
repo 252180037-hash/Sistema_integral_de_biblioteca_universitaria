@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIBU — Portal de Módulos & Sistema de Diseño</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="stylesheet" href="palette.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Red+Hat+Text:wght@600;700&family=Spline+Sans+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'tea-green': '#C9F2C7',
+            'light-green': '#ACECA1',
+            'muted-olive': '#96BE8C',
+            'sage-green': '#629460',
+            'evergreen': '#243119',
+            'success': '#146C2E',
+            'warning': '#8C5000',
+            'danger': '#BA1A1A'
+          },
+          fontFamily: {
+            'display': ['"Red Hat Text"', 'sans-serif'],
+            'headline': ['"Red Hat Text"', 'sans-serif'],
+            'body': ['"Instrument Sans"', 'sans-serif'],
+            'mono': ['"Spline Sans Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="bg-light-surface text-light-on-surface font-body antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-light-surface-container-lowest border-b border-light-outline-variant px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded bg-light-primary text-white flex items-center justify-center shrink-0" style="background-color: var(--app-primary);">
+          <span class="material-symbols-outlined text-[24px]">local_library</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-headline font-bold text-xl">SIBU</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-medium" style="background-color: var(--tea-green); color: var(--evergreen);">v2.0 Botánica</span>
+          </div>
+          <p class="text-xs text-light-on-surface-variant font-mono">Sistema Integral de Biblioteca Universitaria · ISO/IEC 25010:2023</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle-btn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-light-outline-variant text-sm font-medium hover:bg-light-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[18px]" id="theme-toggle-icon">dark_mode</span>
+          <span id="theme-toggle-label">Modo Oscuro</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-10">
+    <section class="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-xl border border-light-outline-variant bg-light-surface-container-low" style="background-image: var(--gradient-left); opacity: 0.95;">
+      <div class="flex flex-col gap-2 max-w-2xl text-white">
+        <h1 class="font-headline text-3xl font-bold tracking-tight">Centro de Módulos y Diseño SIBU</h1>
+        <p class="text-sm font-medium opacity-90">
+          Interfaz desacoplada de cinco capas con soporte simultáneo para la aplicación de escritorio Java Swing (FlatLaf) y el sistema web interactivo. Paleta botánica institucional con soporte nativo de Modo Claro y Modo Oscuro.
+        </p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a href="sibu_dashboard_integral/code.html" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm text-white shadow-sm transition" style="background-color: var(--evergreen);">
+          <span class="material-symbols-outlined text-[18px]">dashboard</span>
+          Abrir Dashboard
+        </a>
+      </div>
+    </section>
+
+    <!-- Paleta de Colores Solicitada -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-headline text-xl font-bold">Paleta de Colores Institucional</h2>
+          <p class="text-sm text-light-on-surface-variant">Tokens CSS, SCSS y degradados aplicados en todos los módulos</p>
+        </div>
+        <span class="font-mono text-xs px-2.5 py-1 rounded-full border border-light-outline-variant bg-light-surface-container">5 Tonos Armónicos</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+        <!-- Tea Green -->
+        <div class="rounded-xl border border-light-outline-variant overflow-hidden bg-light-surface-container-lowest flex flex-col">
+          <div class="h-24 w-full flex items-end p-3" style="background-color: #c9f2c7;">
+            <span class="font-mono text-xs font-bold text-gray-800 bg-white/70 px-2 py-0.5 rounded">#c9f2c7</span>
+          </div>
+          <div class="p-3.5 flex flex-col gap-1">
+            <p class="font-bold text-sm">Tea Green</p>
+            <p class="font-mono text-xs text-light-on-surface-variant">--tea-green</p>
+            <p class="font-mono text-[11px] text-light-on-surface-variant">rgba(201, 242, 199, 1)</p>
+          </div>
+        </div>
+
+        <!-- Light Green -->
+        <div class="rounded-xl border border-light-outline-variant overflow-hidden bg-light-surface-container-lowest flex flex-col">
+          <div class="h-24 w-full flex items-end p-3" style="background-color: #aceca1;">
+            <span class="font-mono text-xs font-bold text-gray-800 bg-white/70 px-2 py-0.5 rounded">#aceca1</span>
+          </div>
+          <div class="p-3.5 flex flex-col gap-1">
+            <p class="font-bold text-sm">Light Green</p>
+            <p class="font-mono text-xs text-light-on-surface-variant">--light-green</p>
+            <p class="font-mono text-[11px] text-light-on-surface-variant">rgba(172, 236, 161, 1)</p>
+          </div>
+        </div>
+
+        <!-- Muted Olive -->
+        <div class="rounded-xl border border-light-outline-variant overflow-hidden bg-light-surface-container-lowest flex flex-col">
+          <div class="h-24 w-full flex items-end p-3" style="background-color: #96be8c;">
+            <span class="font-mono text-xs font-bold text-white bg-black/40 px-2 py-0.5 rounded">#96be8c</span>
+          </div>
+          <div class="p-3.5 flex flex-col gap-1">
+            <p class="font-bold text-sm">Muted Olive</p>
+            <p class="font-mono text-xs text-light-on-surface-variant">--muted-olive</p>
+            <p class="font-mono text-[11px] text-light-on-surface-variant">rgba(150, 190, 140, 1)</p>
+          </div>
+        </div>
+
+        <!-- Sage Green -->
+        <div class="rounded-xl border border-light-outline-variant overflow-hidden bg-light-surface-container-lowest flex flex-col">
+          <div class="h-24 w-full flex items-end p-3" style="background-color: #629460;">
+            <span class="font-mono text-xs font-bold text-white bg-black/40 px-2 py-0.5 rounded">#629460</span>
+          </div>
+          <div class="p-3.5 flex flex-col gap-1">
+            <p class="font-bold text-sm">Sage Green</p>
+            <p class="font-mono text-xs text-light-on-surface-variant">--sage-green</p>
+            <p class="font-mono text-[11px] text-light-on-surface-variant">rgba(98, 148, 96, 1)</p>
+          </div>
+        </div>
+
+        <!-- Evergreen -->
+        <div class="rounded-xl border border-light-outline-variant overflow-hidden bg-light-surface-container-lowest flex flex-col">
+          <div class="h-24 w-full flex items-end p-3" style="background-color: #243119;">
+            <span class="font-mono text-xs font-bold text-white bg-white/20 px-2 py-0.5 rounded">#243119</span>
+          </div>
+          <div class="p-3.5 flex flex-col gap-1">
+            <p class="font-bold text-sm">Evergreen</p>
+            <p class="font-mono text-xs text-light-on-surface-variant">--evergreen</p>
+            <p class="font-mono text-[11px] text-light-on-surface-variant">rgba(36, 49, 25, 1)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Módulos Operativos SIBU (RF1 a RF8) -->
+    <section class="flex flex-col gap-4">
+      <div>
+        <h2 class="font-headline text-xl font-bold">Módulos Funcionales Disponibles</h2>
+        <p class="text-sm text-light-on-surface-variant">Acceso directo a cada pantalla y prototipo del sistema con verificación de operatividad</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- 1. Dashboard Integral -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">RF1 – RF8</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Dashboard Integral Telemetría</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Consola centralizada con KPIs operativos, métricas de calidad ISO/IEC 25010:2023, matriz de requisitos y reportes en vivo.
+            </p>
+          </div>
+          <a href="sibu_dashboard_integral/code.html" class="inline-flex items-center justify-between px-3.5 py-2 rounded-lg border border-light-outline-variant text-xs font-semibold hover:bg-light-surface-container transition">
+            <span>Explorar Módulo</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- 2. Catálogo y Circulación -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">menu_book</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">RF1, RF3, RF4</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Catálogo & Circulación</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Fichas bibliográficas completas, copias físicas por código de barras, préstamos transaccionales, devoluciones y multas.
+            </p>
+          </div>
+          <a href="sibu_cat_logo_y_circulaci_n/code.html" class="inline-flex items-center justify-between px-3.5 py-2 rounded-lg border border-light-outline-variant text-xs font-semibold hover:bg-light-surface-container transition">
+            <span>Explorar Módulo</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- 3. Acceso y Roles -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">RF2, RF6</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Acceso & Control de Roles</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Gestión de usuarios institucionales (Admin, Bibliotecario, Lector), permisos granulares y seguridad SHA-256 + Salt.
+            </p>
+          </div>
+          <a href="sibu_acceso_y_roles_rf2_rf6/code.html" class="inline-flex items-center justify-between px-3.5 py-2 rounded-lg border border-light-outline-variant text-xs font-semibold hover:bg-light-surface-container transition">
+            <span>Explorar Módulo</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- 4. Bitácora y Respaldos -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">history_edu</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">RF7, RF8</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Bitácora & Copias de Respaldo</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Auditoría no repudiable de eventos del sistema, copias de seguridad MySQL .sql y restauración transaccional.
+            </p>
+          </div>
+          <a href="sibu_bit_cora_y_respaldos_rf7_rf8/code.html" class="inline-flex items-center justify-between px-3.5 py-2 rounded-lg border border-light-outline-variant text-xs font-semibold hover:bg-light-surface-container transition">
+            <span>Explorar Módulo</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- 5. Portal Lector Móvil -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">smartphone</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">RF4, RF6 Móvil</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Portal Lector Móvil</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Vista optimizada para dispositivos móviles de consulta de catálogo, disponibilidad de ejemplares y préstamos activos.
+            </p>
+          </div>
+          <a href="sibu_portal_lector_m_vil/code.html" class="inline-flex items-center justify-between px-3.5 py-2 rounded-lg border border-light-outline-variant text-xs font-semibold hover:bg-light-surface-container transition">
+            <span>Explorar Módulo</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- 6. Aplicación de Escritorio Java Swing -->
+        <div class="p-5 rounded-xl border border-light-outline-variant bg-light-surface-container-low flex flex-col justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="p-2 rounded bg-light-primary text-white" style="background-color: var(--app-primary);">
+                <span class="material-symbols-outlined text-[20px]">terminal</span>
+              </span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-light-surface-container border border-light-outline-variant font-medium">Java Swing 21</span>
+            </div>
+            <h3 class="font-headline font-bold text-base">Aplicación de Escritorio</h3>
+            <p class="text-xs text-light-on-surface-variant leading-relaxed">
+              Cliente nativo con FlatLaf botánico, arquitectura de 5 capas, JDBC pool, pruebas unitarias y modo claro/oscuro dinámico.
+            </p>
+          </div>
+          <div class="text-xs font-mono p-2 rounded bg-light-surface-container border border-light-outline-variant text-light-on-surface-variant">
+            mvn exec:java o java -jar target/sibu-1.0.0.jar
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-light-outline-variant py-6 px-6 text-center text-xs text-light-on-surface-variant mt-10">
+    SIBU — Sistema Integral de Biblioteca Universitaria &copy; 2026 · Cumplimiento ISO/IEC 25010:2023 · Paleta Botánica Evergreen & Sage
+  </footer>
+
+  <script>
+    (function() {
+      function applyTheme(isDark) {
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('sibu_theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('sibu_theme', 'light');
+        }
+        var icon = document.getElementById('theme-toggle-icon');
+        var label = document.getElementById('theme-toggle-label');
+        if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        if (label) label.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      }
+
+      var saved = localStorage.getItem('sibu_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = saved ? (saved === 'dark') : prefersDark;
+      applyTheme(isDark);
+
+      document.getElementById('theme-toggle-btn').addEventListener('click', function() {
+        var currentDark = document.documentElement.classList.contains('dark');
+        applyTheme(!currentDark);
+      });
+    })();
+  </script>
+</body>
+</html>
