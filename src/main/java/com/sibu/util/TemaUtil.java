@@ -3,8 +3,11 @@ package com.sibu.util;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.sibu.vista.LoginFrame;
+import com.sibu.vista.MenuPrincipalFrame;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -269,8 +272,14 @@ public final class TemaUtil {
 
     public static void actualizarVentanasAbiertas() {
         SwingUtilities.invokeLater(() -> {
-            // FlatLaf.updateUI() refresca todas las ventanas abiertas de forma nativa
             FlatLaf.updateUI();
+            for (Window ventana : Window.getWindows()) {
+                if (ventana instanceof MenuPrincipalFrame mpf) {
+                    mpf.refrescarTemaUI();
+                } else if (ventana instanceof LoginFrame lf) {
+                    lf.refrescarTemaUI();
+                }
+            }
         });
     }
 

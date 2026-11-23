@@ -239,10 +239,13 @@ public class CirculacionPanel extends JPanel {
             List<Usuario> lista = usuarioServicio.buscarPorCriterio(ident);
             Usuario hallado = null;
             for (Usuario u : lista) {
-                if (u.getIdentificacion().equalsIgnoreCase(ident)) {
+                if (u.getIdentificacion().equalsIgnoreCase(ident) || u.getEmail().equalsIgnoreCase(ident)) {
                     hallado = u;
                     break;
                 }
+            }
+            if (hallado == null && !lista.isEmpty()) {
+                hallado = lista.get(0);
             }
 
             if (hallado != null) {

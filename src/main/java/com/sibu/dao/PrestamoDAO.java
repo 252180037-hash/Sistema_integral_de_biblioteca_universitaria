@@ -132,6 +132,23 @@ public class PrestamoDAO {
     }
 
     /**
+     * Busca el préstamo activo o vencido actualmente asociado a una copia física específica.
+     */
+    public Prestamo buscarPrestamoActivoPorEjemplar(int idEjemplar) throws SQLException {
+        String sql = QUERY_BASE + "WHERE p.id_ejemplar = ? AND p.estado IN ('ACTIVO', 'VENCIDO')";
+        Connection con = ConexionDB.getInstancia().obtenerConexion();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idEjemplar);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapearPrestamo(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Lista todos los préstamos históricos y actuales ordenados por fecha descendente.
      */
     public List<Prestamo> listarTodos() throws SQLException {

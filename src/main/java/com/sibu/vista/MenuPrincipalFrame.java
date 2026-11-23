@@ -25,6 +25,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -438,8 +439,8 @@ public class MenuPrincipalFrame extends JFrame {
         // 1. Dashboard Integral Telemetría (Shell Parity con Stitch) - Vista principal
         panelContenido.add(new DashboardIntegralPanel(usuarioActual), CARD_DASHBOARD);
 
-        // 2. Buscador de catálogo (disponible para todos los roles)
-        panelContenido.add(new BusquedaCatalogoPanel(), CARD_BUSQUEDA);
+        // 2. Buscador de catálogo (disponible para todos los roles con préstamo interactivo)
+        panelContenido.add(new BusquedaCatalogoPanel(usuarioActual), CARD_BUSQUEDA);
 
         RolUsuario rol = usuarioActual.getRol();
 
@@ -473,7 +474,7 @@ public class MenuPrincipalFrame extends JFrame {
 
         panel.add(UIHelper.crearEncabezadoModulo(
                 "Mi Historial de Préstamos y Sanciones (Portal Lector)",
-                "Consulte en tiempo real el estado de sus libros prestados, plazos reglamentarios y mora."
+                "Consulte en tiempo real el estado de sus libros prestados, plazos reglamentarios y tramite devoluciones."
         ), BorderLayout.NORTH);
 
         String[] cols = {"ID Préstamo", "Cód. Ejemplar", "Título de la Obra", "Fecha Préstamo", "Fecha Límite", "Estado de Circulación"};
@@ -486,29 +487,110 @@ public class MenuPrincipalFrame extends JFrame {
         JTable table = new JTable(model);
         UIHelper.estilizarTabla(table);
 
-        try {
-            com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
-            List<com.sibu.modelo.Prestamo> prestamos = cs.listarHistorialLector(usuarioActual.getIdUsuario());
-            for (com.sibu.modelo.Prestamo p : prestamos) {
-                model.addRow(new Object[]{
-                        p.getIdPrestamo(),
-                        p.getCodigoInventario(),
-                        p.getTituloLibro(),
-                        p.getFechaPrestamo() != null ? p.getFechaPrestamo().toLocalDate().toString() : "",
-                        p.getFechaLimite() != null ? p.getFechaLimite().toString() : "",
-                        p.estaVencido() ? "VENCIDO" : p.getEstado().getEtiqueta()
-                });
+        Runnable recargarPrestamos = () -> {
+            model.setRowCount(0);
+            try {
+                com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
+                List<com.sibu.modelo.Prestamo> prestamos = cs.listarHistorialLector(usuarioActual.getIdUsuario());
+                for (com.sibu.modelo.Prestamo p : prestamos) {
+                    model.addRow(new Object[]{
+                            p.getIdPrestamo(),
+                            p.getCodigoInventario(),
+                            p.getTituloLibro(),
+                            p.getFechaPrestamo() != null ? p.getFechaPrestamo().toLocalDate().toString() : "",
+                            p.getFechaLimite() != null ? p.getFechaLimite().toString() : "",
+                            p.estaVencido() ? "VENCIDO" : p.getEstado().getEtiqueta()
+                    });
+                }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
-        }
+        };
+
+        recargarPrestamos.run();
 
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Barra inferior de acciones del lector
+        JPanel panelBotonesLector = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
+        panelBotonesLector.setOpaque(false);
+
+        JButton btnActualizar = UIHelper.crearBotonSecundario("Actualizar");
+        btnActualizar.addActionListener(e -> recargarPrestamos.run());
+
+        JButton btnRenovar = UIHelper.crearBotonSecundario("Renovar Préstamo (+7 Días)");
+        btnRenovar.addActionListener(e -> {
+            int r = table.getSelectedRow();
+            if (r < 0) {
+                UIHelper.mostrarAdvertencia(panel, "Seleccione un préstamo de la lista para renovar.");
+                return;
+            }
+            int idPrestamo = (int) model.getValueAt(r, 0);
+            try {
+                com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
+                cs.realizarRenovacion(idPrestamo, 2);
+                UIHelper.mostrarExito(panel, "Préstamo renovado exitosamente. Se ha extendido la fecha límite.");
+                recargarPrestamos.run();
+            } catch (Exception ex) {
+                UIHelper.mostrarAdvertencia(panel, ex.getMessage());
+            }
+        });
+
+        JButton btnDevolver = UIHelper.crearBotonExito("Devolver Libro Prestado");
+        btnDevolver.addActionListener(e -> {
+            int r = table.getSelectedRow();
+            if (r < 0) {
+                UIHelper.mostrarAdvertencia(panel, "Seleccione el préstamo que desea devolver.");
+                return;
+            }
+            int idPrestamo = (int) model.getValueAt(r, 0);
+            String titulo = (String) model.getValueAt(r, 2);
+            String estado = (String) model.getValueAt(r, 5);
+
+            if ("DEVUELTO".equalsIgnoreCase(estado)) {
+                UIHelper.mostrarAdvertencia(panel, "Este libro ya figura como DEVUELTO.");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    panel,
+                    "¿Desea tramitar la devolución de la obra:\n\"" + titulo + "\"?",
+                    "Devolución de Ejemplar",
+                    JOptionPane.YES_NO_OPTION
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
+                    com.sibu.modelo.Sancion s = cs.registrarDevolucion(idPrestamo, 2, "Devolución tramitada desde portal Lector");
+                    if (s != null) {
+                        UIHelper.mostrarAdvertencia(panel, "Devolución registrada con retraso (" + s.getDiasRetraso() + " días). Multa generada: $" + s.getMonto());
+                    } else {
+                        UIHelper.mostrarExito(panel, "Devolución registrada con éxito. ¡Gracias por entregar a tiempo!");
+                    }
+                    recargarPrestamos.run();
+                } catch (Exception ex) {
+                    UIHelper.mostrarAdvertencia(panel, ex.getMessage());
+                }
+            }
+        });
+
+        panelBotonesLector.add(btnActualizar);
+        panelBotonesLector.add(btnRenovar);
+        panelBotonesLector.add(btnDevolver);
+        panel.add(panelBotonesLector, BorderLayout.SOUTH);
+
         return panel;
     }
 
-    private void alternarTema() {
-        boolean oscuro = TemaUtil.alternarTema();
-        btnAlternarTema.setText(oscuro ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
+    public void refrescarTemaUI() {
+        if (btnAlternarTema != null) {
+            btnAlternarTema.setText(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
+        }
+        if (panelLateral != null) {
+            panelLateral.setBackground(TemaUtil.getColorSidebar());
+        }
+        if (panelContenido != null) {
+            panelContenido.setBackground(TemaUtil.getColorFondo());
+        }
         for (JButton b : botonesMenu) {
             if (b.getFont().isBold()) {
                 estilizarBotonActivo(b);
@@ -516,11 +598,14 @@ public class MenuPrincipalFrame extends JFrame {
                 estilizarBotonInactivo(b);
             }
         }
-        // Forzar repaint completo del frame para que todos los paneles
-        // con updateUI() reactivo tomen los nuevos colores del tema
         SwingUtilities.updateComponentTreeUI(this);
         revalidate();
         repaint();
+    }
+
+    private void alternarTema() {
+        TemaUtil.alternarTema();
+        refrescarTemaUI();
     }
 
     private void cerrarSesion() {

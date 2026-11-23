@@ -497,6 +497,13 @@ public class CirculacionServicio {
         return prestamoDAO.listarActivosYVencidos();
     }
 
+    /**
+     * Localiza el préstamo activo o vencido actualmente asignado a un ejemplar físico.
+     */
+    public Prestamo buscarPrestamoActivoPorEjemplar(int idEjemplar) throws SQLException {
+        return prestamoDAO.buscarPrestamoActivoPorEjemplar(idEjemplar);
+    }
+
     public List<Prestamo> listarPrestamosVencidos() throws SQLException {
         return prestamoDAO.listarVencidos();
     }

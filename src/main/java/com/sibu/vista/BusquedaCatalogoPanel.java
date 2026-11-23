@@ -1,8 +1,19 @@
 package com.sibu.vista;
 
 import com.sibu.modelo.Ejemplar;
+import com.sibu.modelo.EstadoEjemplar;
 import com.sibu.modelo.Libro;
+import com.sibu.modelo.Prestamo;
+import com.sibu.modelo.RolUsuario;
+import com.sibu.modelo.Sancion;
+import com.sibu.modelo.Usuario;
 import com.sibu.servicio.CatalogoServicio;
+import com.sibu.servicio.CirculacionServicio;
+import com.sibu.servicio.UsuarioServicio;
+import com.sibu.servicio.exception.CirculacionException;
+import com.sibu.servicio.exception.ValidacionException;
+import com.sibu.util.Configuracion;
+import com.sibu.util.TemaUtil;
 import com.sibu.vista.componentes.UIHelper;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -10,12 +21,15 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -28,15 +42,19 @@ import javax.swing.table.DefaultTableModel;
  * <p>
  * Permite filtros combinables por título, autor, ISBN y materia, mostrando
  * en tiempo real la cantidad de ejemplares físicos disponibles en anaquel.
- * Accesible para todos los perfiles de usuario, incluyendo Lectores.
+ * Incluye gestión interactiva de préstamos y devoluciones directas desde la tabla
+ * de copias físicas físicas (RF3/RF4).
  * </p>
  * 
  * @author SIBU Arquitectura
- * @version 1.0.0
+ * @version 2.2.0
  */
 public class BusquedaCatalogoPanel extends JPanel {
 
     private final CatalogoServicio catalogoServicio;
+    private final CirculacionServicio circulacionServicio;
+    private final UsuarioServicio usuarioServicio;
+    private final Usuario usuarioActual;
 
     private JTextField txtFiltroTitulo;
     private JTextField txtFiltroAutor;
@@ -51,9 +69,18 @@ public class BusquedaCatalogoPanel extends JPanel {
     private JTable tablaCopiasDetalle;
     private DefaultTableModel modeloCopiasDetalle;
     private JLabel lblDetalleLibro;
+    private JButton btnPedirPrestado;
+    private JButton btnDevolverCopia;
 
     public BusquedaCatalogoPanel() {
+        this(null);
+    }
+
+    public BusquedaCatalogoPanel(Usuario usuarioActual) {
+        this.usuarioActual = usuarioActual;
         this.catalogoServicio = new CatalogoServicio();
+        this.circulacionServicio = new CirculacionServicio();
+        this.usuarioServicio = new UsuarioServicio();
         inicializarUI();
         cargarMaterias();
         ejecutarBusqueda();
@@ -148,12 +175,17 @@ public class BusquedaCatalogoPanel extends JPanel {
         // ---------------------------------------------------------------------
         JPanel panelInferior = UIHelper.crearTarjeta();
         panelInferior.setLayout(new BorderLayout(5, 5));
-        panelInferior.setPreferredSize(new Dimension(0, 180));
+        panelInferior.setPreferredSize(new Dimension(0, 200));
+
+        JPanel panelInferiorTop = new JPanel(new BorderLayout(5, 5));
+        panelInferiorTop.setOpaque(false);
 
         lblDetalleLibro = new JLabel("Seleccione una obra en la tabla superior para consultar la ubicación física de sus ejemplares.");
         lblDetalleLibro.setFont(UIHelper.FUENTE_LABEL);
         lblDetalleLibro.setForeground(com.sibu.util.TemaUtil.getColorTextoPrincipal());
-        panelInferior.add(lblDetalleLibro, BorderLayout.NORTH);
+        panelInferiorTop.add(lblDetalleLibro, BorderLayout.CENTER);
+
+        panelInferior.add(panelInferiorTop, BorderLayout.NORTH);
 
         String[] columnasCopia = {"ID", "Código de Barras / Inventario", "Ubicación Física (Estante/Nivel)", "Estado de Disponibilidad", "Observaciones"};
         modeloCopiasDetalle = new DefaultTableModel(columnasCopia, 0) {
@@ -164,6 +196,60 @@ public class BusquedaCatalogoPanel extends JPanel {
         };
         tablaCopiasDetalle = new JTable(modeloCopiasDetalle);
         UIHelper.estilizarTabla(tablaCopiasDetalle);
+
+        // Barra inferior de acciones directas para el ejemplar seleccionado
+        JPanel panelAccionesCopias = new JPanel(new BorderLayout(8, 4));
+        panelAccionesCopias.setOpaque(false);
+
+        JLabel lblHintClick = new JLabel("💡 Haga clic en 'Disponible' para pedir prestado o en 'Prestado' para tramitar devolución.");
+        lblHintClick.setFont(new java.awt.Font("SansSerif", java.awt.Font.ITALIC, 11));
+        lblHintClick.setForeground(com.sibu.util.TemaUtil.getColorTextoSecundario());
+        panelAccionesCopias.add(lblHintClick, BorderLayout.WEST);
+
+        JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 2));
+        panelBotonesAccion.setOpaque(false);
+
+        btnPedirPrestado = UIHelper.crearBotonPrimario("📖 Solicitar Préstamo");
+        btnPedirPrestado.setEnabled(false);
+        btnPedirPrestado.addActionListener(e -> ejecutarPrestamoDesdeCatalogo());
+
+        btnDevolverCopia = UIHelper.crearBotonExito("🔄 Registrar Devolución");
+        btnDevolverCopia.setEnabled(false);
+        btnDevolverCopia.addActionListener(e -> ejecutarDevolucionDesdeCatalogo());
+
+        panelBotonesAccion.add(btnPedirPrestado);
+        panelBotonesAccion.add(btnDevolverCopia);
+        panelAccionesCopias.add(panelBotonesAccion, BorderLayout.EAST);
+
+        panelInferior.add(panelAccionesCopias, BorderLayout.SOUTH);
+
+        // Listener de selección en tabla de copias
+        tablaCopiasDetalle.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                actualizarBotonesAccionCopias();
+            }
+        });
+
+        // Clic directo o doble clic sobre la tabla de ejemplares (RF3/RF4)
+        tablaCopiasDetalle.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = tablaCopiasDetalle.rowAtPoint(e.getPoint());
+                int col = tablaCopiasDetalle.columnAtPoint(e.getPoint());
+                if (row >= 0) {
+                    String estado = (String) modeloCopiasDetalle.getValueAt(row, 3);
+                    // Si hace clic en la columna de estado o doble clic en la fila
+                    if (col == 3 || e.getClickCount() == 2) {
+                        if ("Disponible".equalsIgnoreCase(estado)) {
+                            ejecutarPrestamoDesdeCatalogo();
+                        } else if ("Prestado".equalsIgnoreCase(estado) || (estado != null && estado.contains("Vencido"))) {
+                            ejecutarDevolucionDesdeCatalogo();
+                        }
+                    }
+                }
+            }
+        });
+
         JScrollPane scrollCopias = new JScrollPane(tablaCopiasDetalle);
         panelInferior.add(scrollCopias, BorderLayout.CENTER);
 
@@ -269,6 +355,214 @@ public class BusquedaCatalogoPanel extends JPanel {
             } catch (SQLException e) {
                 UIHelper.mostrarError(this, "Error al cargar copias físicas: " + e.getMessage());
             }
+        }
+    }
+
+    private void actualizarBotonesAccionCopias() {
+        int r = tablaCopiasDetalle.getSelectedRow();
+        if (r < 0) {
+            btnPedirPrestado.setEnabled(false);
+            btnDevolverCopia.setEnabled(false);
+            return;
+        }
+        String estado = (String) modeloCopiasDetalle.getValueAt(r, 3);
+        if ("Disponible".equalsIgnoreCase(estado)) {
+            btnPedirPrestado.setEnabled(true);
+            btnDevolverCopia.setEnabled(false);
+        } else if ("Prestado".equalsIgnoreCase(estado) || (estado != null && estado.contains("Vencido"))) {
+            btnPedirPrestado.setEnabled(false);
+            btnDevolverCopia.setEnabled(true);
+        } else {
+            btnPedirPrestado.setEnabled(false);
+            btnDevolverCopia.setEnabled(false);
+        }
+    }
+
+    private void ejecutarPrestamoDesdeCatalogo() {
+        int r = tablaCopiasDetalle.getSelectedRow();
+        if (r < 0) {
+            UIHelper.mostrarAdvertencia(this, "Seleccione un ejemplar con estado 'Disponible' para solicitarlo en préstamo.");
+            return;
+        }
+
+        int idEjemplar = (int) modeloCopiasDetalle.getValueAt(r, 0);
+        String codigoInventario = (String) modeloCopiasDetalle.getValueAt(r, 1);
+        String estado = (String) modeloCopiasDetalle.getValueAt(r, 3);
+
+        if (!"Disponible".equalsIgnoreCase(estado)) {
+            UIHelper.mostrarAdvertencia(this, "El ejemplar [" + codigoInventario + "] no se encuentra disponible (Estado: " + estado + ").");
+            return;
+        }
+
+        int rLibro = tablaResultados.getSelectedRow();
+        String tituloLibro = (rLibro >= 0) ? (String) modeloResultados.getValueAt(rLibro, 2) : "Libro seleccionado";
+
+        int diasLimite = Configuracion.getInstancia().getDiasLimitePrestamo();
+
+        // Si el usuario autenticado es un LECTOR
+        if (usuarioActual != null && usuarioActual.getRol() == RolUsuario.LECTOR) {
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Desea tramitar el préstamo del ejemplar [" + codigoInventario + "] a su nombre?\n\n"
+                    + "• Obra: " + tituloLibro + "\n"
+                    + "• Lector solicitante: " + usuarioActual.getNombreCompleto() + " (" + usuarioActual.getIdentificacion() + ")\n"
+                    + "• Plazo reglamentario: " + diasLimite + " días naturales",
+                    "Confirmación de Préstamo",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    // ID 2 es el Bibliotecario por defecto asignado para préstamos en línea/terminal
+                    int idOperador = 2;
+                    Prestamo p = circulacionServicio.registrarPrestamo(
+                            usuarioActual.getIdUsuario(),
+                            idEjemplar,
+                            idOperador,
+                            "Préstamo solicitado directamente desde catálogo en tiempo real"
+                    );
+
+                    UIHelper.mostrarExito(
+                            this,
+                            "¡Préstamo concedido exitosamente!\n\n"
+                            + "• Folio de Préstamo: #" + p.getIdPrestamo() + "\n"
+                            + "• Ejemplar asignado: " + codigoInventario + "\n"
+                            + "• Fecha límite de entrega: " + p.getFechaLimite() + "\n\n"
+                            + "Puede pasar a ventanilla de biblioteca a retirar la obra física."
+                    );
+
+                    // Recargar datos para refrescar conteos de disponibilidad
+                    mostrarDetalleCopias();
+                    ejecutarBusqueda();
+
+                } catch (CirculacionException | ValidacionException ce) {
+                    UIHelper.mostrarAdvertencia(this, ce.getMessage());
+                } catch (Exception ex) {
+                    UIHelper.mostrarError(this, "Fallo al procesar el préstamo: " + ex.getMessage());
+                }
+            }
+        } else {
+            // Usuario Administrador o Bibliotecario: puede prestar a cualquier lector
+            String identLector = JOptionPane.showInputDialog(
+                    this,
+                    "Préstamo en Sala / Mostrador — Ejemplar [" + codigoInventario + "]\n\n"
+                    + "Obra: " + tituloLibro + "\n"
+                    + "Ingrese la Matrícula o Identificación del Lector solicitante:",
+                    "Asignar Préstamo",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (identLector != null && !identLector.trim().isEmpty()) {
+                try {
+                    List<Usuario> usuarios = usuarioServicio.buscarPorCriterio(identLector.trim());
+                    Usuario lector = null;
+                    for (Usuario u : usuarios) {
+                        if (u.getIdentificacion().equalsIgnoreCase(identLector.trim())) {
+                            lector = u;
+                            break;
+                        }
+                    }
+
+                    if (lector == null) {
+                        UIHelper.mostrarAdvertencia(this, "No se encontró ningún lector con la identificación: " + identLector.trim());
+                        return;
+                    }
+
+                    int idOperador = (usuarioActual != null) ? usuarioActual.getIdUsuario() : 1;
+                    Prestamo p = circulacionServicio.registrarPrestamo(
+                            lector.getIdUsuario(),
+                            idEjemplar,
+                            idOperador,
+                            "Préstamo otorgado en mostrador vía catálogo"
+                    );
+
+                    UIHelper.mostrarExito(
+                            this,
+                            "Préstamo #" + p.getIdPrestamo() + " procesado con éxito.\n"
+                            + "• Lector: " + lector.getNombreCompleto() + "\n"
+                            + "• Ejemplar: " + codigoInventario + "\n"
+                            + "• Fecha Límite: " + p.getFechaLimite()
+                    );
+
+                    mostrarDetalleCopias();
+                    ejecutarBusqueda();
+
+                } catch (CirculacionException | ValidacionException ce) {
+                    UIHelper.mostrarAdvertencia(this, ce.getMessage());
+                } catch (Exception ex) {
+                    UIHelper.mostrarError(this, "Fallo al procesar el préstamo: " + ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private void ejecutarDevolucionDesdeCatalogo() {
+        int r = tablaCopiasDetalle.getSelectedRow();
+        if (r < 0) {
+            UIHelper.mostrarAdvertencia(this, "Seleccione un ejemplar prestado para registrar su devolución.");
+            return;
+        }
+
+        int idEjemplar = (int) modeloCopiasDetalle.getValueAt(r, 0);
+        String codigoInventario = (String) modeloCopiasDetalle.getValueAt(r, 1);
+
+        try {
+            Prestamo prestamoActivo = circulacionServicio.buscarPrestamoActivoPorEjemplar(idEjemplar);
+            if (prestamoActivo == null) {
+                UIHelper.mostrarAdvertencia(this, "No se encontró registro de préstamo activo para el ejemplar [" + codigoInventario + "].");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Confirmar la recepción y devolución del ejemplar [" + codigoInventario + "]?\n\n"
+                    + "• Obra: " + prestamoActivo.getTituloLibro() + "\n"
+                    + "• Lector que devuelve: " + prestamoActivo.getNombreLector() + " (" + prestamoActivo.getIdentificacionLector() + ")\n"
+                    + "• Fecha Límite prevista: " + prestamoActivo.getFechaLimite(),
+                    "Recepción de Ejemplar Físico",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                int dano = JOptionPane.showConfirmDialog(
+                        this,
+                        "¿El ejemplar devuelto presenta daños materiales o deterioro físico?",
+                        "Inspección de Estado Físico",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                String obs = (dano == JOptionPane.YES_OPTION) 
+                        ? "Devolución con daño físico reportado desde catálogo" 
+                        : "Devolución en buen estado físico";
+
+                int idOperador = (usuarioActual != null) ? usuarioActual.getIdUsuario() : 1;
+                Sancion sancion = circulacionServicio.registrarDevolucion(prestamoActivo.getIdPrestamo(), idOperador, obs);
+
+                if (sancion != null) {
+                    UIHelper.mostrarAdvertencia(
+                            this,
+                            "Devolución registrada con RETRASO de " + sancion.getDiasRetraso() + " día(s).\n\n"
+                            + "Se generó sanción automática por: $" + sancion.getMonto() + "\n"
+                            + "El usuario queda bloqueado hasta saldar su multa."
+                    );
+                } else {
+                    UIHelper.mostrarExito(
+                            this,
+                            "Devolución procesada con éxito a tiempo.\n"
+                            + "El ejemplar [" + codigoInventario + "] ha sido liberado y queda nuevamente DISPONIBLE."
+                    );
+                }
+
+                mostrarDetalleCopias();
+                ejecutarBusqueda();
+            }
+
+        } catch (CirculacionException | ValidacionException ce) {
+            UIHelper.mostrarAdvertencia(this, ce.getMessage());
+        } catch (Exception ex) {
+            UIHelper.mostrarError(this, "Error al procesar la devolución: " + ex.getMessage());
         }
     }
 
