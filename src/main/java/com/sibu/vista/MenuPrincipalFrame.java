@@ -229,14 +229,14 @@ public class MenuPrincipalFrame extends JFrame {
         if (rol == RolUsuario.ADMINISTRADOR || rol == RolUsuario.BIBLIOTECARIO) {
             panelContenido.add(new CatalogoPanel(usuarioActual), CARD_CATALOGO);
             panelContenido.add(new CirculacionPanel(usuarioActual), CARD_CIRCULACION);
-            panelContenido.add(crearPanelPlaceholder("Reportes y Estadísticas (RF5)", "Disponible en Fase 5 con exportación CSV."), CARD_REPORTES);
+            panelContenido.add(new ReportesPanel(), CARD_REPORTES);
         }
 
         // 3. Módulos administrativos
         if (rol == RolUsuario.ADMINISTRADOR) {
             panelContenido.add(new UsuariosPanel(usuarioActual), CARD_USUARIOS);
-            panelContenido.add(crearPanelPlaceholder("Bitácora de Auditoría (RF7)", "Disponible en Fase 5 con filtros avanzados."), CARD_BITACORA);
-            panelContenido.add(crearPanelPlaceholder("Administración de Respaldos (RF8)", "Disponible en Fase 5 con motor dual .sql."), CARD_ADMIN_DATOS);
+            panelContenido.add(new BitacoraPanel(), CARD_BITACORA);
+            panelContenido.add(new AdminDatosPanel(usuarioActual), CARD_ADMIN_DATOS);
         }
 
         // 4. Panel de Lector
