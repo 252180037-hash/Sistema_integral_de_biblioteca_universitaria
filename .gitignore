@@ -1,0 +1,21 @@
+# Maven target build artifacts
+target/
+*.class
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code and IDE cache (preserve shared settings if needed)
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+
+# Exclude generated backups but keep directory tracked
+backups/*.sql
+!backups/.gitkeep

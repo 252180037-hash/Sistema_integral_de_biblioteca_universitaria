@@ -1,0 +1,2 @@
+-- Copia de respaldo en scripts/database.sql
+-- Véase database.sql en la raíz del proyecto para el script principal.
