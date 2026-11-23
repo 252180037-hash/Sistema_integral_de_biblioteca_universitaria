@@ -5,7 +5,6 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -26,7 +25,7 @@ import javax.swing.UIManager;
  * </p>
  * 
  * @author SIBU Arquitectura
- * @version 2.1.0
+ * @version 2.2.0
  */
 public final class TemaUtil {
 
@@ -40,21 +39,39 @@ public final class TemaUtil {
     public static final Color COLOR_EVERGREEN = new Color(36, 49, 25);       // #243119
 
     // --- Colores Semánticos Principales ---
-    public static final Color COLOR_PRIMARIO = new Color(55, 102, 55);       // Deep Sage (#376637)
-    public static final Color COLOR_PRIMARIO_HOVER = COLOR_SAGE_GREEN;       // Sage Green (#629460)
     public static final Color COLOR_EXITO = new Color(20, 108, 46);          // Verde Éxito (#146C2E)
     public static final Color COLOR_PELIGRO = new Color(186, 26, 26);        // Carmesí / Error (#BA1A1A)
     public static final Color COLOR_ADVERTENCIA = new Color(140, 80, 0);     // Ámbar Advertencia (#8C5000)
-    public static final Color COLOR_NEUTRO_BORDE = COLOR_MUTED_OLIVE;        // #96BE8C
+
+    // --- Tokens Modo Claro ---
+    public static final Color CLARO_BG = new Color(244, 251, 242);          // #F4FBF2
+    public static final Color CLARO_SURFACE = Color.WHITE;                   // #FFFFFF
+    public static final Color CLARO_SURFACE_LOW = new Color(235, 245, 232);  // #EBF5E8
+    public static final Color CLARO_SURFACE_HIGH = new Color(226, 240, 222); // #E2F0DE
+    public static final Color CLARO_TEXT_PRIMARY = COLOR_EVERGREEN;          // #243119
+    public static final Color CLARO_TEXT_SECONDARY = new Color(61, 75, 49);  // #3D4B31
+    public static final Color CLARO_BORDER = COLOR_MUTED_OLIVE;              // #96BE8C
+    public static final Color CLARO_PRIMARY = new Color(55, 102, 55);        // #376637
+
+    // --- Tokens Modo Oscuro ---
+    public static final Color OSCURO_BG = new Color(11, 22, 3);             // #0B1603 (Fondo principal nocturno)
+    public static final Color OSCURO_SURFACE = new Color(23, 35, 12);        // #17230C (Tarjetas y superficies)
+    public static final Color OSCURO_SURFACE_LOW = new Color(19, 31, 9);     // #131F09 (Sidebar persistente)
+    public static final Color OSCURO_SURFACE_HIGH = new Color(33, 46, 22);   // #212E16 (Encabezados y tablas)
+    public static final Color OSCURO_TEXT_PRIMARY = new Color(216, 232, 196);// #D8E8C4 (Texto claro legible)
+    public static final Color OSCURO_TEXT_SECONDARY = new Color(193, 201, 188); // #C1C9BC (Texto secundario)
+    public static final Color OSCURO_BORDER = new Color(65, 73, 63);         // #41493F (Borde sutil)
+    public static final Color OSCURO_PRIMARY = COLOR_LIGHT_GREEN;            // #ACECA1 (Acento claro primario)
+
+    public static final Color COLOR_PRIMARIO = CLARO_PRIMARY;
+    public static final Color COLOR_PRIMARIO_HOVER = COLOR_SAGE_GREEN;
+    public static final Color COLOR_NEUTRO_BORDE = COLOR_MUTED_OLIVE;
 
     private static boolean modoOscuroActivo = false;
 
     private TemaUtil() {
     }
 
-    /**
-     * Inicializa el tema visual de la aplicación según la preferencia almacenada en {@link Configuracion}.
-     */
     public static void inicializarTema() {
         Configuracion config = Configuracion.getInstancia();
         String preferencia = config.getTemaDefault();
@@ -66,13 +83,11 @@ public final class TemaUtil {
         }
     }
 
-    /**
-     * Aplica el Look & Feel de Modo Claro moderno basado en la paleta botánica.
-     */
     public static void aplicarTemaClaro() {
         try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
             modoOscuroActivo = false;
+            // IMPORTANTE: FlatLaf.setup() PRIMERO, luego sobreescribir UIManager
+            FlatLightLaf.setup();
             configurarAjustesModoClaro();
             actualizarVentanasAbiertas();
             LOGGER.info("Tema Botánico Claro aplicado exitosamente.");
@@ -82,13 +97,11 @@ public final class TemaUtil {
         }
     }
 
-    /**
-     * Aplica el Look & Feel de Modo Oscuro moderno basado en la paleta botánica.
-     */
     public static void aplicarTemaOscuro() {
         try {
-            UIManager.setLookAndFeel(new FlatDarkLaf());
             modoOscuroActivo = true;
+            // IMPORTANTE: FlatLaf.setup() PRIMERO, luego sobreescribir UIManager
+            FlatDarkLaf.setup();
             configurarAjustesModoOscuro();
             actualizarVentanasAbiertas();
             LOGGER.info("Tema Botánico Oscuro aplicado exitosamente.");
@@ -98,11 +111,6 @@ public final class TemaUtil {
         }
     }
 
-    /**
-     * Alterna dinámicamente entre Modo Claro y Modo Oscuro en tiempo de ejecución.
-     * 
-     * @return {@code true} si el tema resultante es Oscuro; {@code false} si es Claro.
-     */
     public static boolean alternarTema() {
         if (modoOscuroActivo) {
             aplicarTemaClaro();
@@ -119,37 +127,41 @@ public final class TemaUtil {
         return modoOscuroActivo;
     }
 
-    // --- Selectores de Color Dinámicos ---
+    // --- Getters de Color Dinámicos ---
     public static Color getColorFondo() {
-        return modoOscuroActivo ? new Color(19, 31, 9) : new Color(244, 251, 242);
+        return modoOscuroActivo ? OSCURO_BG : CLARO_BG;
+    }
+
+    public static Color getColorSidebar() {
+        return modoOscuroActivo ? OSCURO_SURFACE_LOW : CLARO_SURFACE_LOW;
     }
 
     public static Color getColorSuperficie() {
-        return modoOscuroActivo ? new Color(26, 40, 16) : Color.WHITE;
+        return modoOscuroActivo ? OSCURO_SURFACE : CLARO_SURFACE;
     }
 
     public static Color getColorSuperficieContenedor() {
-        return modoOscuroActivo ? new Color(33, 46, 22) : new Color(235, 245, 232);
+        return modoOscuroActivo ? OSCURO_SURFACE_HIGH : CLARO_SURFACE_LOW;
     }
 
     public static Color getColorSuperficieDestacada() {
-        return modoOscuroActivo ? new Color(44, 61, 30) : new Color(226, 240, 222);
+        return modoOscuroActivo ? new Color(44, 61, 30) : CLARO_SURFACE_HIGH;
     }
 
     public static Color getColorTextoPrincipal() {
-        return modoOscuroActivo ? new Color(216, 232, 196) : COLOR_EVERGREEN;
+        return modoOscuroActivo ? OSCURO_TEXT_PRIMARY : CLARO_TEXT_PRIMARY;
     }
 
     public static Color getColorTextoSecundario() {
-        return modoOscuroActivo ? new Color(168, 184, 150) : new Color(61, 75, 49);
+        return modoOscuroActivo ? OSCURO_TEXT_SECONDARY : CLARO_TEXT_SECONDARY;
     }
 
     public static Color getColorBorde() {
-        return modoOscuroActivo ? new Color(62, 77, 48) : COLOR_MUTED_OLIVE;
+        return modoOscuroActivo ? OSCURO_BORDER : CLARO_BORDER;
     }
 
     public static Color getColorPrimario() {
-        return modoOscuroActivo ? COLOR_LIGHT_GREEN : COLOR_PRIMARIO;
+        return modoOscuroActivo ? OSCURO_PRIMARY : CLARO_PRIMARY;
     }
 
     public static Color getColorPrimarioTexto() {
@@ -170,91 +182,95 @@ public final class TemaUtil {
     private static void configurarAjustesModoClaro() {
         configurarAjustesGlobalesComunes();
 
-        Color bg = new Color(244, 251, 242);
-        Color fg = COLOR_EVERGREEN;
-        Color border = COLOR_MUTED_OLIVE;
-
         UIManager.put("@accentColor", "#629460");
         UIManager.put("Component.focusColor", COLOR_SAGE_GREEN);
-        UIManager.put("Component.borderColor", border);
+        UIManager.put("Component.borderColor", CLARO_BORDER);
 
-        UIManager.put("Panel.background", bg);
-        UIManager.put("Label.foreground", fg);
+        UIManager.put("Panel.background", CLARO_BG);
+        UIManager.put("Label.foreground", CLARO_TEXT_PRIMARY);
 
-        UIManager.put("Table.background", Color.WHITE);
-        UIManager.put("Table.foreground", fg);
+        UIManager.put("Table.background", CLARO_SURFACE);
+        UIManager.put("Table.foreground", CLARO_TEXT_PRIMARY);
         UIManager.put("Table.alternateRowColor", new Color(246, 251, 244));
         UIManager.put("Table.selectionBackground", COLOR_TEA_GREEN);
-        UIManager.put("Table.selectionForeground", fg);
-        UIManager.put("Table.gridColor", new Color(226, 240, 222));
+        UIManager.put("Table.selectionForeground", CLARO_TEXT_PRIMARY);
+        UIManager.put("Table.gridColor", CLARO_SURFACE_HIGH);
 
-        UIManager.put("TableHeader.background", new Color(226, 240, 222));
-        UIManager.put("TableHeader.foreground", fg);
+        UIManager.put("TableHeader.background", CLARO_SURFACE_HIGH);
+        UIManager.put("TableHeader.foreground", CLARO_TEXT_PRIMARY);
 
-        UIManager.put("TextField.background", Color.WHITE);
-        UIManager.put("TextField.foreground", fg);
-        UIManager.put("TextField.caretColor", fg);
-        UIManager.put("PasswordField.background", Color.WHITE);
-        UIManager.put("PasswordField.foreground", fg);
+        UIManager.put("TextField.background", CLARO_SURFACE);
+        UIManager.put("TextField.foreground", CLARO_TEXT_PRIMARY);
+        UIManager.put("TextField.caretColor", CLARO_TEXT_PRIMARY);
+        UIManager.put("PasswordField.background", CLARO_SURFACE);
+        UIManager.put("PasswordField.foreground", CLARO_TEXT_PRIMARY);
 
-        UIManager.put("ComboBox.background", Color.WHITE);
-        UIManager.put("ComboBox.foreground", fg);
+        UIManager.put("ComboBox.background", CLARO_SURFACE);
+        UIManager.put("ComboBox.foreground", CLARO_TEXT_PRIMARY);
 
-        UIManager.put("ScrollPane.background", bg);
-        UIManager.put("Viewport.background", Color.WHITE);
-        UIManager.put("SplitPane.background", bg);
+        UIManager.put("ScrollPane.background", CLARO_BG);
+        UIManager.put("Viewport.background", CLARO_SURFACE);
+        UIManager.put("SplitPane.background", CLARO_BG);
 
-        UIManager.put("TabbedPane.selectedBackground", new Color(235, 245, 232));
-        UIManager.put("TabbedPane.underlineColor", COLOR_PRIMARIO);
+        UIManager.put("TabbedPane.background", CLARO_SURFACE_LOW);
+        UIManager.put("TabbedPane.foreground", CLARO_TEXT_PRIMARY);
+        UIManager.put("TabbedPane.selectedBackground", CLARO_SURFACE_HIGH);
+        UIManager.put("TabbedPane.selectedForeground", CLARO_PRIMARY);
+        UIManager.put("TabbedPane.underlineColor", CLARO_PRIMARY);
+
+        UIManager.put("Button.background", CLARO_SURFACE_LOW);
+        UIManager.put("Button.foreground", CLARO_TEXT_PRIMARY);
+        UIManager.put("Button.borderColor", CLARO_BORDER);
     }
 
     private static void configurarAjustesModoOscuro() {
         configurarAjustesGlobalesComunes();
 
-        Color bg = new Color(19, 31, 9);           // Fondo oscuro botánico (#131F09)
-        Color surface = new Color(26, 40, 16);      // Superficie tarjeta (#1A2810)
-        Color fg = new Color(216, 232, 196);        // Texto claro nítido (#D8E8C4)
-        Color border = new Color(62, 77, 48);       // Borde visible (#3E4D30)
-
         UIManager.put("@accentColor", "#ACECA1");
-        UIManager.put("Component.focusColor", COLOR_LIGHT_GREEN);
-        UIManager.put("Component.borderColor", border);
+        UIManager.put("Component.focusColor", OSCURO_PRIMARY);
+        UIManager.put("Component.borderColor", OSCURO_BORDER);
 
-        UIManager.put("Panel.background", bg);
-        UIManager.put("Label.foreground", fg);
+        UIManager.put("Panel.background", OSCURO_BG);
+        UIManager.put("Label.foreground", OSCURO_TEXT_PRIMARY);
 
-        UIManager.put("Table.background", surface);
-        UIManager.put("Table.foreground", fg);
-        UIManager.put("Table.alternateRowColor", new Color(33, 46, 22));
+        UIManager.put("Table.background", OSCURO_SURFACE);
+        UIManager.put("Table.foreground", OSCURO_TEXT_PRIMARY);
+        UIManager.put("Table.alternateRowColor", OSCURO_SURFACE_HIGH);
         UIManager.put("Table.selectionBackground", new Color(44, 79, 39));
         UIManager.put("Table.selectionForeground", COLOR_TEA_GREEN);
-        UIManager.put("Table.gridColor", new Color(38, 54, 25));
+        UIManager.put("Table.gridColor", OSCURO_BORDER);
 
-        UIManager.put("TableHeader.background", new Color(33, 46, 22));
-        UIManager.put("TableHeader.foreground", fg);
+        UIManager.put("TableHeader.background", OSCURO_SURFACE_HIGH);
+        UIManager.put("TableHeader.foreground", OSCURO_TEXT_PRIMARY);
 
-        UIManager.put("TextField.background", surface);
-        UIManager.put("TextField.foreground", fg);
-        UIManager.put("TextField.caretColor", COLOR_LIGHT_GREEN);
-        UIManager.put("PasswordField.background", surface);
-        UIManager.put("PasswordField.foreground", fg);
+        UIManager.put("TextField.background", OSCURO_SURFACE);
+        UIManager.put("TextField.foreground", OSCURO_TEXT_PRIMARY);
+        UIManager.put("TextField.caretColor", OSCURO_PRIMARY);
+        UIManager.put("PasswordField.background", OSCURO_SURFACE);
+        UIManager.put("PasswordField.foreground", OSCURO_TEXT_PRIMARY);
 
-        UIManager.put("ComboBox.background", surface);
-        UIManager.put("ComboBox.foreground", fg);
+        UIManager.put("ComboBox.background", OSCURO_SURFACE);
+        UIManager.put("ComboBox.foreground", OSCURO_TEXT_PRIMARY);
 
-        UIManager.put("ScrollPane.background", bg);
-        UIManager.put("Viewport.background", surface);
-        UIManager.put("SplitPane.background", bg);
+        UIManager.put("ScrollPane.background", OSCURO_BG);
+        UIManager.put("Viewport.background", OSCURO_SURFACE);
+        UIManager.put("SplitPane.background", OSCURO_BG);
 
-        UIManager.put("TabbedPane.selectedBackground", new Color(33, 46, 22));
-        UIManager.put("TabbedPane.underlineColor", COLOR_LIGHT_GREEN);
+        UIManager.put("TabbedPane.background", OSCURO_SURFACE_LOW);
+        UIManager.put("TabbedPane.foreground", OSCURO_TEXT_PRIMARY);
+        UIManager.put("TabbedPane.selectedBackground", OSCURO_SURFACE_HIGH);
+        UIManager.put("TabbedPane.selectedForeground", OSCURO_PRIMARY);
+        UIManager.put("TabbedPane.underlineColor", OSCURO_PRIMARY);
+
+        UIManager.put("Button.background", OSCURO_SURFACE_HIGH);
+        UIManager.put("Button.foreground", OSCURO_TEXT_PRIMARY);
+        UIManager.put("Button.borderColor", OSCURO_BORDER);
     }
 
-    private static void actualizarVentanasAbiertas() {
+    public static void actualizarVentanasAbiertas() {
         SwingUtilities.invokeLater(() -> {
-            for (Window ventana : Window.getWindows()) {
-                SwingUtilities.updateComponentTreeUI(ventana);
-            }
+            // FlatLaf.updateUI() refresca todas las ventanas abiertas de forma nativa
+            FlatLaf.updateUI();
         });
     }
 

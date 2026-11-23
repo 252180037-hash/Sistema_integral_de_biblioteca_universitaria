@@ -101,7 +101,7 @@ public class MenuPrincipalFrame extends JFrame {
             @Override
             public void updateUI() {
                 super.updateUI();
-                setBackground(TemaUtil.getColorSuperficieContenedor());
+                setBackground(TemaUtil.getColorSidebar());
                 setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
                         BorderFactory.createEmptyBorder(18, 14, 18, 14)
@@ -110,7 +110,7 @@ public class MenuPrincipalFrame extends JFrame {
         };
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(260, 0));
-        sidebar.setBackground(TemaUtil.getColorSuperficieContenedor());
+        sidebar.setBackground(TemaUtil.getColorSidebar());
         sidebar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
                 BorderFactory.createEmptyBorder(18, 14, 18, 14)
@@ -124,7 +124,15 @@ public class MenuPrincipalFrame extends JFrame {
         brandPanel.setAlignmentX(LEFT_ALIGNMENT);
 
         // Icono biblioteca en caja redondeada
-        JLabel brandIcon = new JLabel("🏛", SwingConstants.CENTER);
+        JLabel brandIcon = new JLabel("🏛", SwingConstants.CENTER) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorPrimario());
+                setForeground(TemaUtil.getColorPrimarioTexto());
+                setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
+            }
+        };
         brandIcon.setFont(new Font("SansSerif", Font.PLAIN, 18));
         brandIcon.setOpaque(true);
         brandIcon.setBackground(TemaUtil.getColorPrimario());
@@ -508,6 +516,11 @@ public class MenuPrincipalFrame extends JFrame {
                 estilizarBotonInactivo(b);
             }
         }
+        // Forzar repaint completo del frame para que todos los paneles
+        // con updateUI() reactivo tomen los nuevos colores del tema
+        SwingUtilities.updateComponentTreeUI(this);
+        revalidate();
+        repaint();
     }
 
     private void cerrarSesion() {
