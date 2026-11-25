@@ -108,7 +108,7 @@ public class CirculacionPanel extends JPanel {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(UIHelper.FUENTE_LABEL);
 
-        tabbedPane.addTab("1. Nuevo Préstamo", crearPestanaNuevoPrestamo());
+        tabbedPane.addTab("1. Nuevo Préstamo", new JScrollPane(crearPestanaNuevoPrestamo()));
         tabbedPane.addTab("2. Préstamos en Curso y Devoluciones", crearPestanaDevoluciones());
         tabbedPane.addTab("3. Liquidación de Sanciones y Multas", crearPestanaSanciones());
 

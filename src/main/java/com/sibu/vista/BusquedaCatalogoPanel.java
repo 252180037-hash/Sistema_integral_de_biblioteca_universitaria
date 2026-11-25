@@ -88,6 +88,7 @@ public class BusquedaCatalogoPanel extends JPanel {
 
     private void inicializarUI() {
         setLayout(new BorderLayout(10, 10));
+        setBackground(TemaUtil.getColorFondo());
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         add(UIHelper.crearEncabezadoModulo(
@@ -141,6 +142,7 @@ public class BusquedaCatalogoPanel extends JPanel {
         // Fila 2: Botones
         gbc.gridy = 2; gbc.gridx = 0; gbc.gridwidth = 4;
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
+        panelBotones.setOpaque(false);
         btnLimpiar = UIHelper.crearBotonSecundario("Limpiar Filtros");
         btnLimpiar.addActionListener(e -> limpiarFiltros());
 
@@ -201,7 +203,7 @@ public class BusquedaCatalogoPanel extends JPanel {
         JPanel panelAccionesCopias = new JPanel(new BorderLayout(8, 4));
         panelAccionesCopias.setOpaque(false);
 
-        JLabel lblHintClick = new JLabel("💡 Haga clic en 'Disponible' para pedir prestado o en 'Prestado' para tramitar devolución.");
+        JLabel lblHintClick = new JLabel("● Haga clic en 'Disponible' para pedir prestado o en 'Prestado' para tramitar devolución.");
         lblHintClick.setFont(new java.awt.Font("SansSerif", java.awt.Font.ITALIC, 11));
         lblHintClick.setForeground(com.sibu.util.TemaUtil.getColorTextoSecundario());
         panelAccionesCopias.add(lblHintClick, BorderLayout.WEST);
@@ -209,11 +211,11 @@ public class BusquedaCatalogoPanel extends JPanel {
         JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 2));
         panelBotonesAccion.setOpaque(false);
 
-        btnPedirPrestado = UIHelper.crearBotonPrimario("📖 Solicitar Préstamo");
+        btnPedirPrestado = UIHelper.crearBotonPrimario("▶  Solicitar Préstamo");
         btnPedirPrestado.setEnabled(false);
         btnPedirPrestado.addActionListener(e -> ejecutarPrestamoDesdeCatalogo());
 
-        btnDevolverCopia = UIHelper.crearBotonExito("🔄 Registrar Devolución");
+        btnDevolverCopia = UIHelper.crearBotonExito("✔  Registrar Devolución");
         btnDevolverCopia.setEnabled(false);
         btnDevolverCopia.addActionListener(e -> ejecutarDevolucionDesdeCatalogo());
 

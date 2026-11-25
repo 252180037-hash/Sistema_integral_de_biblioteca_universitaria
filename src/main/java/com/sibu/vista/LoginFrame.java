@@ -55,7 +55,6 @@ public class LoginFrame extends JFrame {
     private JTextField txtEmail;
     private JPasswordField txtPassword;
     private JButton btnLogin;
-    private JButton btnAlternarTema;
     private JLabel lblMensajeError;
 
     public LoginFrame() {
@@ -68,23 +67,11 @@ public class LoginFrame extends JFrame {
         setTitle("SIBU - Inicio de Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(480, 560);
-        setMinimumSize(new Dimension(420, 520));
+        setMinimumSize(new Dimension(360, 480));
         setLocationRelativeTo(null);
 
         panelPrincipal = new JPanel(new BorderLayout(15, 15));
-        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
-
-        // ---------------------------------------------------------------------
-        // Barra Superior: Botón de cambio de Tema (Modo Claro / Modo Oscuro)
-        // ---------------------------------------------------------------------
-        JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        panelTop.setOpaque(false);
-        btnAlternarTema = new JButton(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
-        btnAlternarTema.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        btnAlternarTema.setFocusPainted(false);
-        btnAlternarTema.addActionListener(e -> alternarTema());
-        panelTop.add(btnAlternarTema);
-        panelPrincipal.add(panelTop, BorderLayout.NORTH);
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // ---------------------------------------------------------------------
         // Centro: Tarjeta de Login
@@ -230,9 +217,6 @@ public class LoginFrame extends JFrame {
         if (lblEmail != null) lblEmail.setForeground(TemaUtil.getColorTextoPrincipal());
         if (lblPass != null) lblPass.setForeground(TemaUtil.getColorTextoPrincipal());
         if (lblPrueba != null) lblPrueba.setForeground(TemaUtil.getColorTextoSecundario());
-        if (btnAlternarTema != null) {
-            btnAlternarTema.setText(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
-        }
         if (txtEmail != null) {
             txtEmail.setBackground(TemaUtil.getColorSuperficie());
             txtEmail.setForeground(TemaUtil.getColorTextoPrincipal());
@@ -290,10 +274,5 @@ public class LoginFrame extends JFrame {
             MenuPrincipalFrame menu = new MenuPrincipalFrame(usuario);
             menu.setVisible(true);
         });
-    }
-
-    private void alternarTema() {
-        TemaUtil.alternarTema();
-        refrescarTemaUI();
     }
 }

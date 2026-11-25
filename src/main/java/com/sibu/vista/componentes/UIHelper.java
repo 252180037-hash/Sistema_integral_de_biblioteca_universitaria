@@ -91,31 +91,51 @@ public final class UIHelper {
     }
 
     /**
-     * Crea una tarjeta KPI destacada estilo Stitch con valor principal, título y subtítulo.
+     * Crea una tarjeta KPI destacada con reactividad total al cambio de tema.
      */
     public static JPanel crearKpiCard(String titulo, String valor, String subtitulo, String iconChar, Color iconColor) {
-        JPanel card = crearTarjeta();
-        card.setLayout(new BorderLayout(8, 8));
-
-        JPanel top = new JPanel(new BorderLayout(5, 5));
-        top.setOpaque(false);
         JLabel lblTitulo = new JLabel(titulo);
         lblTitulo.setFont(FUENTE_SUBTITULO);
         lblTitulo.setForeground(TemaUtil.getColorTextoSecundario());
-        top.add(lblTitulo, BorderLayout.WEST);
 
         JLabel lblIcon = new JLabel(iconChar);
-        lblIcon.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblIcon.setForeground(iconColor != null ? iconColor : TemaUtil.COLOR_SAGE_GREEN);
-        top.add(lblIcon, BorderLayout.EAST);
+        lblIcon.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblIcon.setForeground(iconColor != null ? iconColor : TemaUtil.getColorPrimario());
 
         JLabel lblValor = new JLabel(valor);
-        lblValor.setFont(new Font("SansSerif", Font.BOLD, 26));
+        lblValor.setFont(new Font("SansSerif", Font.BOLD, 24));
         lblValor.setForeground(TemaUtil.getColorTextoPrincipal());
 
         JLabel lblSub = new JLabel(subtitulo);
         lblSub.setFont(new Font("SansSerif", Font.PLAIN, 11));
         lblSub.setForeground(TemaUtil.getColorTextoSecundario());
+
+        JPanel card = new JPanel() {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorSuperficie());
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true),
+                        BorderFactory.createEmptyBorder(12, 12, 12, 12)
+                ));
+                if (lblTitulo != null) lblTitulo.setForeground(TemaUtil.getColorTextoSecundario());
+                if (lblValor != null) lblValor.setForeground(TemaUtil.getColorTextoPrincipal());
+                if (lblSub != null) lblSub.setForeground(TemaUtil.getColorTextoSecundario());
+                if (lblIcon != null) lblIcon.setForeground(iconColor != null ? iconColor : TemaUtil.getColorPrimario());
+            }
+        };
+        card.setBackground(TemaUtil.getColorSuperficie());
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        ));
+        card.setLayout(new BorderLayout(8, 8));
+
+        JPanel top = new JPanel(new BorderLayout(5, 5));
+        top.setOpaque(false);
+        top.add(lblTitulo, BorderLayout.WEST);
+        top.add(lblIcon, BorderLayout.EAST);
 
         JPanel center = new JPanel();
         center.setOpaque(false);
@@ -130,14 +150,9 @@ public final class UIHelper {
     }
 
     /**
-     * Crea un encabezado de módulo con título y descripción institucional.
+     * Crea un encabezado de módulo con título y descripción institucional reactivo.
      */
     public static JPanel crearEncabezadoModulo(String titulo, String descripcion) {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
-
         JLabel lblTitulo = new JLabel(titulo);
         lblTitulo.setFont(FUENTE_TITULO);
         lblTitulo.setForeground(TemaUtil.getColorTextoPrincipal());
@@ -145,6 +160,18 @@ public final class UIHelper {
         JLabel lblDesc = new JLabel(descripcion);
         lblDesc.setFont(FUENTE_SUBTITULO);
         lblDesc.setForeground(TemaUtil.getColorTextoSecundario());
+
+        JPanel panel = new JPanel() {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                if (lblTitulo != null) lblTitulo.setForeground(TemaUtil.getColorTextoPrincipal());
+                if (lblDesc != null) lblDesc.setForeground(TemaUtil.getColorTextoSecundario());
+            }
+        };
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
 
         panel.add(lblTitulo);
         panel.add(Box.createVerticalStrut(2));
@@ -175,12 +202,19 @@ public final class UIHelper {
     }
 
     /**
-     * Crea un botón de éxito (verde bosque institucional para confirmaciones).
+     * Crea un botón de éxito (verde institucional para confirmaciones).
      */
     public static JButton crearBotonExito(String texto) {
-        JButton btn = new JButton(texto);
+        JButton btn = new JButton(texto) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorExito());
+                setForeground(Color.WHITE);
+            }
+        };
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(TemaUtil.COLOR_EXITO);
+        btn.setBackground(TemaUtil.getColorExito());
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -192,9 +226,16 @@ public final class UIHelper {
      * Crea un botón de peligro (carmesí para cancelaciones o bajas).
      */
     public static JButton crearBotonPeligro(String texto) {
-        JButton btn = new JButton(texto);
+        JButton btn = new JButton(texto) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorPeligro());
+                setForeground(Color.WHITE);
+            }
+        };
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(TemaUtil.COLOR_PELIGRO);
+        btn.setBackground(TemaUtil.getColorPeligro());
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -261,16 +302,16 @@ public final class UIHelper {
 
                 if (!isSelected) {
                     if (valStr.contains("DISPONIBLE") || valStr.contains("ACTIVO") || valStr.contains("DEVUELTO")) {
-                        l.setForeground(TemaUtil.esModoOscuro() ? TemaUtil.COLOR_LIGHT_GREEN : TemaUtil.COLOR_EXITO);
+                        l.setForeground(TemaUtil.getColorExito());
                         l.setFont(FUENTE_LABEL);
                     } else if (valStr.contains("PRESTADO") || valStr.contains("EN MORA") || valStr.contains("RENOVADO")) {
-                        l.setForeground(TemaUtil.esModoOscuro() ? new Color(255, 204, 128) : TemaUtil.COLOR_ADVERTENCIA);
+                        l.setForeground(TemaUtil.getColorAdvertencia());
                         l.setFont(FUENTE_LABEL);
                     } else if (valStr.contains("VENCIDO") || valStr.contains("SANCIONADO") || valStr.contains("DAÑADO") || valStr.contains("BAJA")) {
-                        l.setForeground(TemaUtil.esModoOscuro() ? new Color(255, 160, 160) : TemaUtil.COLOR_PELIGRO);
+                        l.setForeground(TemaUtil.getColorPeligro());
                         l.setFont(FUENTE_LABEL);
                     } else {
-                        l.setForeground(table.getForeground());
+                        l.setForeground(TemaUtil.getColorTextoPrincipal());
                         l.setFont(FUENTE_REGULAR);
                     }
                 }

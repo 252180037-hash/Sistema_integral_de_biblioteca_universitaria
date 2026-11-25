@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -166,7 +167,10 @@ public class AdminDatosPanel extends JPanel {
         lblEstadoOperacion.setFont(UIHelper.FUENTE_LABEL);
         panelCentral.add(lblEstadoOperacion);
 
-        add(panelCentral, BorderLayout.CENTER);
+        JScrollPane scrollCentral = new JScrollPane(panelCentral);
+        scrollCentral.setBorder(null);
+        scrollCentral.getVerticalScrollBar().setUnitIncrement(14);
+        add(scrollCentral, BorderLayout.CENTER);
     }
 
     private void examinarRutaRespaldo() {

@@ -3,496 +3,191 @@ package com.sibu.vista;
 import com.sibu.modelo.RolUsuario;
 import com.sibu.modelo.Usuario;
 import com.sibu.util.TemaUtil;
+import com.sibu.vista.componentes.SidebarPanel;
 import com.sibu.vista.componentes.UIHelper;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Ventana principal del sistema SIBU con arquitectura Shell Parity con Stitch y control RBAC (RF6).
+ * Ventana principal del sistema SIBU.
  * <p>
- * Diseñada bajo la norma <b>ISO/IEC 25010:2023 (Seguridad, Usabilidad y Estética de Interfaz)</b>.
- * Incorpora la barra lateral persistente (260px) de la plantilla Stitch, el selector de perfiles (RF2/RF6),
- * el Dashboard Integral con telemetría de software (RF1–RF8) y soporte reactivo bimodal (Claro/Oscuro).
+ * Incorpora la barra lateral colapsable ({@link SidebarPanel}), CardLayout para
+ * la navegación entre módulos y control de acceso basado en roles (RBAC).
+ * Compatible estrictamente con Java 8 / Swing.
  * </p>
- * 
+ *
  * @author SIBU Arquitectura
- * @version 2.1.0
+ * @version 3.0.0
  */
 public class MenuPrincipalFrame extends JFrame {
 
-    private final Usuario usuarioActual;
-
-    private JPanel panelLateral;
-    private JPanel panelContenido;
-    private CardLayout cardLayout;
-    private JButton btnAlternarTema;
-    private JLabel lblRoleSummary;
-    private final List<JButton> botonesMenu = new ArrayList<>();
-    private final Map<JButton, String> mapaBotonesCard = new HashMap<>();
-
-    // Identificadores de paneles (CardLayout)
-    public static final String CARD_DASHBOARD = "DASHBOARD_INTEGRAL";
-    public static final String CARD_BUSQUEDA = "BUSQUEDA_CATALOGO";
-    public static final String CARD_CATALOGO = "CATALOGO_LIBROS";
-    public static final String CARD_CIRCULACION = "CIRCULACION";
-    public static final String CARD_USUARIOS = "USUARIOS";
-    public static final String CARD_REPORTES = "REPORTES";
-    public static final String CARD_BITACORA = "BITACORA";
-    public static final String CARD_ADMIN_DATOS = "ADMIN_DATOS";
+    // CardLayout IDs (públicos para referencias externas)
+    public static final String CARD_DASHBOARD        = "DASHBOARD_INTEGRAL";
+    public static final String CARD_BUSQUEDA         = "BUSQUEDA_CATALOGO";
+    public static final String CARD_CATALOGO         = "CATALOGO_LIBROS";
+    public static final String CARD_CIRCULACION      = "CIRCULACION";
+    public static final String CARD_USUARIOS         = "USUARIOS";
+    public static final String CARD_REPORTES         = "REPORTES";
+    public static final String CARD_BITACORA         = "BITACORA";
+    public static final String CARD_ADMIN_DATOS      = "ADMIN_DATOS";
     public static final String CARD_HISTORIAL_LECTOR = "HISTORIAL_LECTOR";
+
+    private final Usuario     usuarioActual;
+    private SidebarPanel      sidebar;
+    private JPanel            panelContenido;
+    private CardLayout        cardLayout;
+    private JPanel            panelHistorialLector;
+    private JTable            tablaHistorialLector;
 
     public MenuPrincipalFrame(Usuario usuarioActual) {
         this.usuarioActual = usuarioActual;
         inicializarUI();
     }
 
+    // =========================================================================
+    // Inicialización
+    // =========================================================================
+
     private void inicializarUI() {
-        setTitle("SIBU — Sistema Integrado de Bibliotecas [" + usuarioActual.getRol().getEtiqueta() + "]");
+        setTitle("SIBU — Sistema Integrado de Bibliotecas  [" + usuarioActual.getRol().getEtiqueta() + "]");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 800);
-        setMinimumSize(new Dimension(1024, 680));
+        setMinimumSize(new Dimension(480, 540));
         setLocationRelativeTo(null);
 
-        JPanel panelContenedor = new JPanel(new BorderLayout());
-        panelContenedor.setBackground(TemaUtil.getColorFondo());
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(TemaUtil.getColorFondo());
 
-        // 1. Barra Lateral de Navegación Persistente (260px)
-        panelLateral = construirSidebar();
-        panelContenedor.add(panelLateral, BorderLayout.WEST);
+        // --- Sidebar colapsable ---
+        sidebar = new SidebarPanel(
+            usuarioActual,
+            this::mostrarPanel,
+            this::cerrarSesion
+        );
 
-        // 2. Área Central Dinámica (CardLayout)
-        cardLayout = new CardLayout();
+        JScrollPane scrollSidebar = new JScrollPane(sidebar);
+        scrollSidebar.setBorder(null);
+        scrollSidebar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollSidebar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollSidebar.getVerticalScrollBar().setUnitIncrement(14);
+        scrollSidebar.setPreferredSize(new Dimension(SidebarPanel.ANCHO_EXPANDIDO, 0));
+
+        sidebar.setOnToggleExpand(expandido -> {
+            int nuevoAncho = expandido
+                    ? SidebarPanel.ANCHO_EXPANDIDO
+                    : SidebarPanel.ANCHO_COLAPSADO;
+            scrollSidebar.setPreferredSize(new Dimension(nuevoAncho, 0));
+            scrollSidebar.revalidate();
+        });
+
+        root.add(scrollSidebar, BorderLayout.WEST);
+
+        // --- Área central (CardLayout) ---
+        cardLayout    = new CardLayout();
         panelContenido = new JPanel(cardLayout);
         panelContenido.setBackground(TemaUtil.getColorFondo());
 
         construirVistasSegunRol();
 
-        panelContenedor.add(panelContenido, BorderLayout.CENTER);
-        setContentPane(panelContenedor);
+        root.add(panelContenido, BorderLayout.CENTER);
+        setContentPane(root);
     }
 
-    private JPanel construirSidebar() {
-        JPanel sidebar = new JPanel() {
-            @Override
-            public void updateUI() {
-                super.updateUI();
-                setBackground(TemaUtil.getColorSidebar());
-                setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
-                        BorderFactory.createEmptyBorder(18, 14, 18, 14)
-                ));
-            }
-        };
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(260, 0));
-        sidebar.setBackground(TemaUtil.getColorSidebar());
-        sidebar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 0, 1, TemaUtil.getColorBorde()),
-                BorderFactory.createEmptyBorder(18, 14, 18, 14)
-        ));
-
-        // ---------------------------------------------------------------------
-        // 1. Brand Header (Plantilla Stitch)
-        // ---------------------------------------------------------------------
-        JPanel brandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        brandPanel.setOpaque(false);
-        brandPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-        // Icono biblioteca en caja redondeada
-        JLabel brandIcon = new JLabel("🏛", SwingConstants.CENTER) {
-            @Override
-            public void updateUI() {
-                super.updateUI();
-                setBackground(TemaUtil.getColorPrimario());
-                setForeground(TemaUtil.getColorPrimarioTexto());
-                setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
-            }
-        };
-        brandIcon.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        brandIcon.setOpaque(true);
-        brandIcon.setBackground(TemaUtil.getColorPrimario());
-        brandIcon.setForeground(TemaUtil.getColorPrimarioTexto());
-        brandIcon.setPreferredSize(new Dimension(38, 38));
-        brandIcon.setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
-
-        JPanel brandText = new JPanel();
-        brandText.setOpaque(false);
-        brandText.setLayout(new BoxLayout(brandText, BoxLayout.Y_AXIS));
-
-        JLabel lblLogo = new JLabel("SIBU", SwingConstants.LEFT);
-        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblLogo.setForeground(TemaUtil.getColorTextoPrincipal());
-
-        JLabel lblSub = new JLabel("Java · 5 Capas", SwingConstants.LEFT);
-        lblSub.setFont(new Font("Monospaced", Font.PLAIN, 11));
-        lblSub.setForeground(TemaUtil.getColorTextoSecundario());
-
-        brandText.add(lblLogo);
-        brandText.add(Box.createVerticalStrut(1));
-        brandText.add(lblSub);
-
-        brandPanel.add(brandIcon);
-        brandPanel.add(brandText);
-
-        sidebar.add(brandPanel);
-        sidebar.add(Box.createVerticalStrut(16));
-
-        // ---------------------------------------------------------------------
-        // 2. Selector de Perfiles (RF2 / RF6 Tab Pills)
-        // ---------------------------------------------------------------------
-        JPanel rolePillsCard = new JPanel();
-        rolePillsCard.setOpaque(false);
-        rolePillsCard.setLayout(new BoxLayout(rolePillsCard, BoxLayout.Y_AXIS));
-        rolePillsCard.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel lblRoleTitle = new JLabel("Perfil activo (RF2 / RF6)");
-        lblRoleTitle.setFont(new Font("SansSerif", Font.BOLD, 11));
-        lblRoleTitle.setForeground(TemaUtil.getColorTextoSecundario());
-        rolePillsCard.add(lblRoleTitle);
-        rolePillsCard.add(Box.createVerticalStrut(6));
-
-        JPanel pillsPanel = new JPanel(new GridLayout(1, 3, 4, 0));
-        pillsPanel.setOpaque(false);
-        pillsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
-
-        RolUsuario rol = usuarioActual.getRol();
-        JButton tabAdmin = crearRoleTab("Admin", rol == RolUsuario.ADMINISTRADOR);
-        JButton tabBiblio = crearRoleTab("Biblio", rol == RolUsuario.BIBLIOTECARIO);
-        JButton tabLector = crearRoleTab("Lector", rol == RolUsuario.LECTOR);
-
-        pillsPanel.add(tabAdmin);
-        pillsPanel.add(tabBiblio);
-        pillsPanel.add(tabLector);
-        rolePillsCard.add(pillsPanel);
-        rolePillsCard.add(Box.createVerticalStrut(6));
-
-        lblRoleSummary = new JLabel(obtenerResumenRol(rol));
-        lblRoleSummary.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        lblRoleSummary.setForeground(TemaUtil.getColorTextoSecundario());
-        rolePillsCard.add(lblRoleSummary);
-
-        sidebar.add(rolePillsCard);
-        sidebar.add(Box.createVerticalStrut(14));
-
-        // ---------------------------------------------------------------------
-        // 3. Tarjeta de Usuario Actual
-        // ---------------------------------------------------------------------
-        JPanel cardUser = UIHelper.crearTarjeta();
-        cardUser.setLayout(new BoxLayout(cardUser, BoxLayout.Y_AXIS));
-        cardUser.setAlignmentX(LEFT_ALIGNMENT);
-        cardUser.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
-
-        JLabel lblNombre = new JLabel(usuarioActual.getNombreCompleto());
-        lblNombre.setFont(UIHelper.FUENTE_LABEL);
-        lblNombre.setForeground(TemaUtil.getColorTextoPrincipal());
-
-        JLabel lblRolPill = new JLabel("  " + usuarioActual.getRol().getEtiqueta().toUpperCase() + "  ");
-        lblRolPill.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lblRolPill.setOpaque(true);
-        lblRolPill.setBackground(TemaUtil.COLOR_TEA_GREEN);
-        lblRolPill.setForeground(TemaUtil.COLOR_EVERGREEN);
-        lblRolPill.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
-
-        JLabel lblIdent = new JLabel("ID: " + usuarioActual.getIdentificacion());
-        lblIdent.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        lblIdent.setForeground(TemaUtil.getColorTextoSecundario());
-
-        cardUser.add(lblNombre);
-        cardUser.add(Box.createVerticalStrut(3));
-        cardUser.add(lblRolPill);
-        cardUser.add(Box.createVerticalStrut(3));
-        cardUser.add(lblIdent);
-
-        sidebar.add(cardUser);
-        sidebar.add(Box.createVerticalStrut(16));
-
-        // ---------------------------------------------------------------------
-        // 4. Navegación Principal Modular con Iconos y Códigos RF
-        // ---------------------------------------------------------------------
-        JLabel lblSecOperacion = new JLabel("OPERACIÓN SIBU");
-        lblSecOperacion.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lblSecOperacion.setForeground(TemaUtil.getColorTextoSecundario());
-        lblSecOperacion.setAlignmentX(LEFT_ALIGNMENT);
-        sidebar.add(lblSecOperacion);
-        sidebar.add(Box.createVerticalStrut(6));
-
-        // 1. Resumen General (Dashboard Integral)
-        agregarBotonNavegacion(sidebar, "  📊  Resumen General", CARD_DASHBOARD, true);
-
-        // 2. Consulta y Búsqueda de Catálogo (RF4)
-        agregarBotonNavegacion(sidebar, "  🔍  Búsqueda Catálogo (RF4)", CARD_BUSQUEDA, false);
-
-        // 3. Módulos Operativos (Admin / Bibliotecario)
-        if (rol == RolUsuario.ADMINISTRADOR || rol == RolUsuario.BIBLIOTECARIO) {
-            agregarBotonNavegacion(sidebar, "  📚  Gestión Catálogo (RF1)", CARD_CATALOGO, false);
-            agregarBotonNavegacion(sidebar, "  🔄  Circulación (RF3)", CARD_CIRCULACION, false);
-            agregarBotonNavegacion(sidebar, "  📈  Reportes CSV (RF5)", CARD_REPORTES, false);
-        }
-
-        // 4. Módulos de Calidad y Sistema (Admin)
-        if (rol == RolUsuario.ADMINISTRADOR) {
-            sidebar.add(Box.createVerticalStrut(8));
-            JLabel lblSecAdmin = new JLabel("CALIDAD & SISTEMA");
-            lblSecAdmin.setFont(new Font("SansSerif", Font.BOLD, 10));
-            lblSecAdmin.setForeground(TemaUtil.getColorTextoSecundario());
-            lblSecAdmin.setAlignmentX(LEFT_ALIGNMENT);
-            sidebar.add(lblSecAdmin);
-            sidebar.add(Box.createVerticalStrut(6));
-
-            agregarBotonNavegacion(sidebar, "  👥  Gestión Usuarios (RF2)", CARD_USUARIOS, false);
-            agregarBotonNavegacion(sidebar, "  📜  Bitácora Auditoría (RF7)", CARD_BITACORA, false);
-            agregarBotonNavegacion(sidebar, "  💾  Respaldos & Seeders (RF8)", CARD_ADMIN_DATOS, false);
-        }
-
-        // 5. Historial para Lector
-        if (rol == RolUsuario.LECTOR) {
-            agregarBotonNavegacion(sidebar, "  📖  Mis Préstamos Activos", CARD_HISTORIAL_LECTOR, false);
-        }
-
-        sidebar.add(Box.createVerticalGlue());
-
-        // ---------------------------------------------------------------------
-        // 5. Pie de la Barra Lateral: Pill de Arquitectura y Acciones
-        // ---------------------------------------------------------------------
-        JPanel cardArch = new JPanel();
-        cardArch.setOpaque(true);
-        cardArch.setBackground(TemaUtil.getColorSuperficie());
-        cardArch.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
-        ));
-        cardArch.setLayout(new BoxLayout(cardArch, BoxLayout.Y_AXIS));
-        cardArch.setAlignmentX(LEFT_ALIGNMENT);
-        cardArch.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
-        JPanel rowState = new JPanel(new BorderLayout(5, 0));
-        rowState.setOpaque(false);
-        JLabel lblDbState = new JLabel("MySQL Red Local");
-        lblDbState.setFont(new Font("SansSerif", Font.BOLD, 11));
-        lblDbState.setForeground(TemaUtil.getColorTextoPrincipal());
-
-        JLabel badgeState = new JLabel(" Activo ");
-        badgeState.setFont(new Font("SansSerif", Font.BOLD, 10));
-        badgeState.setOpaque(true);
-        badgeState.setBackground(TemaUtil.COLOR_TEA_GREEN);
-        badgeState.setForeground(TemaUtil.COLOR_EXITO);
-        badgeState.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
-
-        rowState.add(lblDbState, BorderLayout.WEST);
-        rowState.add(badgeState, BorderLayout.EAST);
-
-        JLabel lblJdbc = new JLabel("PreparedStatement · JDBC");
-        lblJdbc.setFont(new Font("Monospaced", Font.PLAIN, 10));
-        lblJdbc.setForeground(TemaUtil.getColorTextoSecundario());
-
-        cardArch.add(rowState);
-        cardArch.add(Box.createVerticalStrut(2));
-        cardArch.add(lblJdbc);
-
-        sidebar.add(cardArch);
-        sidebar.add(Box.createVerticalStrut(10));
-
-        // Selector de Tema (Modo Claro / Modo Oscuro)
-        btnAlternarTema = UIHelper.crearBotonSecundario(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
-        btnAlternarTema.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-        btnAlternarTema.setAlignmentX(LEFT_ALIGNMENT);
-        btnAlternarTema.addActionListener(e -> alternarTema());
-        sidebar.add(btnAlternarTema);
-        sidebar.add(Box.createVerticalStrut(6));
-
-        // Botón Cerrar Sesión
-        JButton btnLogout = UIHelper.crearBotonPeligro("Cerrar Sesión");
-        btnLogout.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-        btnLogout.setAlignmentX(LEFT_ALIGNMENT);
-        btnLogout.addActionListener(e -> cerrarSesion());
-        sidebar.add(btnLogout);
-
-        return sidebar;
-    }
-
-    private JButton crearRoleTab(String texto, boolean activo) {
-        JButton btn = new JButton(texto);
-        btn.setFont(new Font("SansSerif", activo ? Font.BOLD : Font.PLAIN, 11));
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setMargin(new Insets(2, 4, 2, 4));
-
-        if (activo) {
-            btn.setBackground(TemaUtil.getColorSuperficie());
-            btn.setForeground(TemaUtil.getColorPrimario());
-            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.getColorBorde(), 1, true));
-        } else {
-            btn.setBackground(TemaUtil.getColorSuperficieContenedor());
-            btn.setForeground(TemaUtil.getColorTextoSecundario());
-            btn.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
-        }
-
-        btn.addActionListener(e -> {
-            lblRoleSummary.setText(obtenerResumenRolPorNombre(texto));
-        });
-
-        return btn;
-    }
-
-    private String obtenerResumenRol(RolUsuario rol) {
-        return switch (rol) {
-            case ADMINISTRADOR -> "Acceso total: catálogo, usuarios, bitácora y respaldos.";
-            case BIBLIOTECARIO -> "Operación: catálogo bibliográfico, circulación y reportes.";
-            case LECTOR -> "Consulta en tiempo real del catálogo y préstamos personales.";
-        };
-    }
-
-    private String obtenerResumenRolPorNombre(String rolNombre) {
-        return switch (rolNombre.toLowerCase()) {
-            case "admin" -> "Acceso total: catálogo, usuarios, bitácora y respaldos.";
-            case "biblio" -> "Operación: catálogo bibliográfico, circulación y reportes.";
-            default -> "Consulta en tiempo real del catálogo y préstamos personales.";
-        };
-    }
-
-    private void agregarBotonNavegacion(JPanel panel, String texto, String cardId, boolean seleccionadoInicial) {
-        JButton btn = new JButton(texto);
-        btn.setFont(UIHelper.FUENTE_REGULAR);
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
-        btn.setAlignmentX(LEFT_ALIGNMENT);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-
-        btn.addActionListener(e -> {
-            cardLayout.show(panelContenido, cardId);
-            actualizarEstadoBotones(btn);
-        });
-
-        botonesMenu.add(btn);
-        mapaBotonesCard.put(btn, cardId);
-
-        if (seleccionadoInicial) {
-            estilizarBotonActivo(btn);
-        } else {
-            estilizarBotonInactivo(btn);
-        }
-
-        panel.add(btn);
-        panel.add(Box.createVerticalStrut(4));
-    }
-
-    private void estilizarBotonActivo(JButton btn) {
-        btn.setFont(UIHelper.FUENTE_LABEL);
-        btn.setOpaque(true);
-        if (TemaUtil.esModoOscuro()) {
-            btn.setBackground(new Color(44, 79, 39));
-            btn.setForeground(TemaUtil.COLOR_TEA_GREEN);
-            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_SAGE_GREEN, 1, true));
-        } else {
-            btn.setBackground(TemaUtil.COLOR_TEA_GREEN);
-            btn.setForeground(TemaUtil.COLOR_EVERGREEN);
-            btn.setBorder(BorderFactory.createLineBorder(TemaUtil.COLOR_MUTED_OLIVE, 1, true));
-        }
-    }
-
-    private void estilizarBotonInactivo(JButton btn) {
-        btn.setFont(UIHelper.FUENTE_REGULAR);
-        btn.setOpaque(false);
-        btn.setBackground(null);
-        btn.setForeground(TemaUtil.getColorTextoPrincipal());
-        btn.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
-    }
-
-    private void actualizarEstadoBotones(JButton botonActivo) {
-        for (JButton b : botonesMenu) {
-            if (b == botonActivo) {
-                estilizarBotonActivo(b);
-            } else {
-                estilizarBotonInactivo(b);
-            }
-        }
-    }
+    // =========================================================================
+    // Paneles según rol
+    // =========================================================================
 
     private void construirVistasSegunRol() {
-        // 1. Dashboard Integral Telemetría (Shell Parity con Stitch) - Vista principal
-        panelContenido.add(new DashboardIntegralPanel(usuarioActual), CARD_DASHBOARD);
-
-        // 2. Buscador de catálogo (disponible para todos los roles con préstamo interactivo)
+        panelContenido.add(new DashboardIntegralPanel(usuarioActual, this::mostrarPanel), CARD_DASHBOARD);
         panelContenido.add(new BusquedaCatalogoPanel(usuarioActual), CARD_BUSQUEDA);
 
         RolUsuario rol = usuarioActual.getRol();
 
-        // 3. Módulos operativos
         if (rol == RolUsuario.ADMINISTRADOR || rol == RolUsuario.BIBLIOTECARIO) {
-            panelContenido.add(new CatalogoPanel(usuarioActual), CARD_CATALOGO);
+            panelContenido.add(new CatalogoPanel(usuarioActual),    CARD_CATALOGO);
             panelContenido.add(new CirculacionPanel(usuarioActual), CARD_CIRCULACION);
-            panelContenido.add(new ReportesPanel(), CARD_REPORTES);
+            panelContenido.add(new ReportesPanel(),                 CARD_REPORTES);
         }
 
-        // 4. Módulos administrativos
         if (rol == RolUsuario.ADMINISTRADOR) {
-            panelContenido.add(new UsuariosPanel(usuarioActual), CARD_USUARIOS);
-            panelContenido.add(new BitacoraPanel(), CARD_BITACORA);
-            panelContenido.add(new AdminDatosPanel(usuarioActual), CARD_ADMIN_DATOS);
+            panelContenido.add(new UsuariosPanel(usuarioActual),    CARD_USUARIOS);
+            panelContenido.add(new BitacoraPanel(),                 CARD_BITACORA);
+            panelContenido.add(new AdminDatosPanel(usuarioActual),  CARD_ADMIN_DATOS);
         }
 
-        // 5. Panel de Lector
         if (rol == RolUsuario.LECTOR) {
-            panelContenido.add(crearPanelHistorialLector(), CARD_HISTORIAL_LECTOR);
+            panelContenido.add(crearPanelHistorialLector(),         CARD_HISTORIAL_LECTOR);
         }
 
-        // Mostrar por defecto el Dashboard Integral
         cardLayout.show(panelContenido, CARD_DASHBOARD);
     }
 
+    // =========================================================================
+    // Navegación
+    // =========================================================================
+
+    public void mostrarPanel(String cardId) {
+        cardLayout.show(panelContenido, cardId);
+        if (sidebar != null) {
+            sidebar.seleccionarPorCardId(cardId);
+        }
+    }
+
+    // =========================================================================
+    // Panel historial del lector
+    // =========================================================================
+
     private JPanel crearPanelHistorialLector() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
-        panel.setBackground(TemaUtil.getColorFondo());
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 18, 15, 18));
-
-        panel.add(UIHelper.crearEncabezadoModulo(
-                "Mi Historial de Préstamos y Sanciones (Portal Lector)",
-                "Consulte en tiempo real el estado de sus libros prestados, plazos reglamentarios y tramite devoluciones."
-        ), BorderLayout.NORTH);
-
-        String[] cols = {"ID Préstamo", "Cód. Ejemplar", "Título de la Obra", "Fecha Préstamo", "Fecha Límite", "Estado de Circulación"};
-        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+        panelHistorialLector = new JPanel(new BorderLayout(12, 12)) {
             @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorFondo());
             }
         };
-        JTable table = new JTable(model);
-        UIHelper.estilizarTabla(table);
+        panelHistorialLector.setBackground(TemaUtil.getColorFondo());
+        panelHistorialLector.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 18, 15, 18));
 
-        Runnable recargarPrestamos = () -> {
+        panelHistorialLector.add(UIHelper.crearEncabezadoModulo(
+                "Mi Historial de Préstamos",
+                "Consulte el estado de sus libros prestados, plazos y trámite de devoluciones."
+        ), BorderLayout.NORTH);
+
+        String[] cols = {"ID", "Cód. Ejemplar", "Título", "Fecha Préstamo", "Fecha Límite", "Estado"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        tablaHistorialLector = new JTable(model) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBackground(TemaUtil.getColorSuperficie());
+                setForeground(TemaUtil.getColorTextoPrincipal());
+                setGridColor(TemaUtil.getColorBorde());
+                if (getTableHeader() != null) {
+                    getTableHeader().setBackground(TemaUtil.getColorSuperficieContenedor());
+                    getTableHeader().setForeground(TemaUtil.getColorTextoPrincipal());
+                }
+            }
+        };
+        UIHelper.estilizarTabla(tablaHistorialLector);
+
+        Runnable cargar = () -> {
             model.setRowCount(0);
             try {
                 com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
-                List<com.sibu.modelo.Prestamo> prestamos = cs.listarHistorialLector(usuarioActual.getIdUsuario());
-                for (com.sibu.modelo.Prestamo p : prestamos) {
+                List<com.sibu.modelo.Prestamo> lista = cs.listarHistorialLector(usuarioActual.getIdUsuario());
+                for (com.sibu.modelo.Prestamo p : lista) {
                     model.addRow(new Object[]{
                             p.getIdPrestamo(),
                             p.getCodigoInventario(),
@@ -502,119 +197,117 @@ public class MenuPrincipalFrame extends JFrame {
                             p.estaVencido() ? "VENCIDO" : p.getEstado().getEtiqueta()
                     });
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         };
 
-        recargarPrestamos.run();
+        cargar.run();
+        JScrollPane scrollPane = new JScrollPane(tablaHistorialLector);
+        scrollPane.setBackground(TemaUtil.getColorFondo());
+        scrollPane.getViewport().setBackground(TemaUtil.getColorSuperficie());
+        panelHistorialLector.add(scrollPane, BorderLayout.CENTER);
 
-        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        // Botones
+        JPanel barra = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 10, 6));
+        barra.setOpaque(false);
 
-        // Barra inferior de acciones del lector
-        JPanel panelBotonesLector = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
-        panelBotonesLector.setOpaque(false);
+        javax.swing.JButton btnActualizar = UIHelper.crearBotonSecundario("Actualizar");
+        btnActualizar.addActionListener(e -> cargar.run());
 
-        JButton btnActualizar = UIHelper.crearBotonSecundario("Actualizar");
-        btnActualizar.addActionListener(e -> recargarPrestamos.run());
-
-        JButton btnRenovar = UIHelper.crearBotonSecundario("Renovar Préstamo (+7 Días)");
+        javax.swing.JButton btnRenovar = UIHelper.crearBotonSecundario("Renovar (+7 días)");
         btnRenovar.addActionListener(e -> {
-            int r = table.getSelectedRow();
-            if (r < 0) {
-                UIHelper.mostrarAdvertencia(panel, "Seleccione un préstamo de la lista para renovar.");
-                return;
-            }
-            int idPrestamo = (int) model.getValueAt(r, 0);
+            int row = tablaHistorialLector.getSelectedRow();
+            if (row < 0) { UIHelper.mostrarAdvertencia(panelHistorialLector, "Seleccione un préstamo."); return; }
+            int idPrestamo = (int) model.getValueAt(row, 0);
             try {
-                com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
-                cs.realizarRenovacion(idPrestamo, 2);
-                UIHelper.mostrarExito(panel, "Préstamo renovado exitosamente. Se ha extendido la fecha límite.");
-                recargarPrestamos.run();
+                new com.sibu.servicio.CirculacionServicio().realizarRenovacion(idPrestamo, usuarioActual.getIdUsuario());
+                UIHelper.mostrarExito(panelHistorialLector, "Préstamo renovado exitosamente.");
+                cargar.run();
             } catch (Exception ex) {
-                UIHelper.mostrarAdvertencia(panel, ex.getMessage());
+                UIHelper.mostrarAdvertencia(panelHistorialLector, ex.getMessage());
             }
         });
 
-        JButton btnDevolver = UIHelper.crearBotonExito("Devolver Libro Prestado");
+        javax.swing.JButton btnDevolver = UIHelper.crearBotonExito("Devolver Libro");
         btnDevolver.addActionListener(e -> {
-            int r = table.getSelectedRow();
-            if (r < 0) {
-                UIHelper.mostrarAdvertencia(panel, "Seleccione el préstamo que desea devolver.");
-                return;
-            }
-            int idPrestamo = (int) model.getValueAt(r, 0);
-            String titulo = (String) model.getValueAt(r, 2);
-            String estado = (String) model.getValueAt(r, 5);
-
+            int row = tablaHistorialLector.getSelectedRow();
+            if (row < 0) { UIHelper.mostrarAdvertencia(panelHistorialLector, "Seleccione un préstamo."); return; }
+            int idPrestamo = (int) model.getValueAt(row, 0);
+            String titulo  = (String) model.getValueAt(row, 2);
+            String estado  = (String) model.getValueAt(row, 5);
             if ("DEVUELTO".equalsIgnoreCase(estado)) {
-                UIHelper.mostrarAdvertencia(panel, "Este libro ya figura como DEVUELTO.");
-                return;
+                UIHelper.mostrarAdvertencia(panelHistorialLector, "Este libro ya fue devuelto."); return;
             }
-
-            int confirm = JOptionPane.showConfirmDialog(
-                    panel,
-                    "¿Desea tramitar la devolución de la obra:\n\"" + titulo + "\"?",
-                    "Devolución de Ejemplar",
-                    JOptionPane.YES_NO_OPTION
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
+            int ok = JOptionPane.showConfirmDialog(panelHistorialLector,
+                    "¿Devolver \"" + titulo + "\"?", "Devolución", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
                 try {
-                    com.sibu.servicio.CirculacionServicio cs = new com.sibu.servicio.CirculacionServicio();
-                    com.sibu.modelo.Sancion s = cs.registrarDevolucion(idPrestamo, 2, "Devolución tramitada desde portal Lector");
+                    com.sibu.modelo.Sancion s =
+                            new com.sibu.servicio.CirculacionServicio()
+                                .registrarDevolucion(idPrestamo, usuarioActual.getIdUsuario(), "Portal Lector");
                     if (s != null) {
-                        UIHelper.mostrarAdvertencia(panel, "Devolución registrada con retraso (" + s.getDiasRetraso() + " días). Multa generada: $" + s.getMonto());
+                        UIHelper.mostrarAdvertencia(panelHistorialLector,
+                                "Devolución con retraso: " + s.getDiasRetraso() + " días. Multa: $" + s.getMonto());
                     } else {
-                        UIHelper.mostrarExito(panel, "Devolución registrada con éxito. ¡Gracias por entregar a tiempo!");
+                        UIHelper.mostrarExito(panelHistorialLector, "Devolución registrada. ¡Gracias!");
                     }
-                    recargarPrestamos.run();
+                    cargar.run();
                 } catch (Exception ex) {
-                    UIHelper.mostrarAdvertencia(panel, ex.getMessage());
+                    UIHelper.mostrarAdvertencia(panelHistorialLector, ex.getMessage());
                 }
             }
         });
 
-        panelBotonesLector.add(btnActualizar);
-        panelBotonesLector.add(btnRenovar);
-        panelBotonesLector.add(btnDevolver);
-        panel.add(panelBotonesLector, BorderLayout.SOUTH);
-
-        return panel;
+        barra.add(btnActualizar);
+        barra.add(btnRenovar);
+        barra.add(btnDevolver);
+        panelHistorialLector.add(barra, BorderLayout.SOUTH);
+        return panelHistorialLector;
     }
 
+    // =========================================================================
+    // Refresco de interfaz
+    // =========================================================================
+
     public void refrescarTemaUI() {
-        if (btnAlternarTema != null) {
-            btnAlternarTema.setText(TemaUtil.esModoOscuro() ? "  ☀️  Modo Claro" : "  🌙  Modo Oscuro");
-        }
-        if (panelLateral != null) {
-            panelLateral.setBackground(TemaUtil.getColorSidebar());
+        if (sidebar != null) {
+            sidebar.refrescarTema();
         }
         if (panelContenido != null) {
             panelContenido.setBackground(TemaUtil.getColorFondo());
-        }
-        for (JButton b : botonesMenu) {
-            if (b.getFont().isBold()) {
-                estilizarBotonActivo(b);
-            } else {
-                estilizarBotonInactivo(b);
+            for (java.awt.Component c : panelContenido.getComponents()) {
+                if (c instanceof DashboardIntegralPanel) {
+                    ((DashboardIntegralPanel) c).refrescarTema();
+                } else if (c instanceof JPanel) {
+                    c.setBackground(TemaUtil.getColorFondo());
+                }
             }
+        }
+        if (panelHistorialLector != null) {
+            panelHistorialLector.setBackground(TemaUtil.getColorFondo());
+        }
+        if (tablaHistorialLector != null) {
+            tablaHistorialLector.setBackground(TemaUtil.getColorSuperficie());
+            tablaHistorialLector.setForeground(TemaUtil.getColorTextoPrincipal());
+            tablaHistorialLector.setGridColor(TemaUtil.getColorBorde());
+            if (tablaHistorialLector.getTableHeader() != null) {
+                tablaHistorialLector.getTableHeader().setBackground(TemaUtil.getColorSuperficieContenedor());
+                tablaHistorialLector.getTableHeader().setForeground(TemaUtil.getColorTextoPrincipal());
+            }
+            UIHelper.estilizarTabla(tablaHistorialLector);
         }
         SwingUtilities.updateComponentTreeUI(this);
         revalidate();
         repaint();
     }
 
-    private void alternarTema() {
-        TemaUtil.alternarTema();
-        refrescarTemaUI();
-    }
+    // =========================================================================
+    // Sesión
+    // =========================================================================
 
     private void cerrarSesion() {
-        if (UIHelper.confirmarAccion(this, "¿Está seguro de cerrar la sesión actual?", "Cerrar Sesión")) {
-            this.dispose();
-            SwingUtilities.invokeLater(() -> {
-                LoginFrame login = new LoginFrame();
-                login.setVisible(true);
-            });
+        if (UIHelper.confirmarAccion(this, "¿Cerrar la sesión actual?", "Cerrar Sesión")) {
+            dispose();
+            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
         }
     }
 }
