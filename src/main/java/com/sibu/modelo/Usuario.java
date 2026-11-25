@@ -177,7 +177,8 @@ public class Usuario implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Usuario usuario)) return false;
+        if (!(o instanceof Usuario)) return false;
+        Usuario usuario = (Usuario) o;
         return Objects.equals(idUsuario, usuario.idUsuario) ||
                (email != null && email.equalsIgnoreCase(usuario.email));
     }

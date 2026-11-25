@@ -189,18 +189,20 @@ public class ReportesPanel extends JPanel {
 
         try {
             switch (index) {
-                case 0 -> { // Préstamos por Periodo
+                case 0: { // Préstamos por Periodo
                     LocalDate inicio = LocalDate.parse(txtFechaInicio.getText().trim());
                     LocalDate fin = LocalDate.parse(txtFechaFin.getText().trim());
                     encabezadosActuales = reporteServicio.getEncabezadosPrestamosPeriodo();
                     datosActuales = reporteServicio.generarDatosPrestamosPeriodo(inicio, fin);
+                    break;
                 }
-                case 1 -> { // Préstamos Vencidos
+                case 1: { // Préstamos Vencidos
                     double multaDiaria = Configuracion.getInstancia().getMultaDiaria();
                     encabezadosActuales = reporteServicio.getEncabezadosPrestamosVencidos();
                     datosActuales = reporteServicio.generarDatosPrestamosVencidos(multaDiaria);
+                    break;
                 }
-                case 2 -> { // Ranking Libros
+                case 2: { // Ranking Libros
                     int limite = 20;
                     try {
                         limite = Integer.parseInt(txtLimiteRanking.getText().trim());
@@ -208,14 +210,17 @@ public class ReportesPanel extends JPanel {
                     }
                     encabezadosActuales = reporteServicio.getEncabezadosRankingLibros();
                     datosActuales = reporteServicio.generarDatosRankingLibros(limite);
+                    break;
                 }
-                case 3 -> { // Usuarios Sancionados
+                case 3: { // Usuarios Sancionados
                     encabezadosActuales = reporteServicio.getEncabezadosUsuariosSancionados();
                     datosActuales = reporteServicio.generarDatosUsuariosSancionados();
+                    break;
                 }
-                case 4 -> { // Disponibilidad por Materia
+                case 4: { // Disponibilidad por Materia
                     encabezadosActuales = reporteServicio.getEncabezadosDisponibilidadMateria();
                     datosActuales = reporteServicio.generarDatosDisponibilidadMateria();
+                    break;
                 }
             }
 

@@ -235,7 +235,8 @@ public class Prestamo implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Prestamo prestamo)) return false;
+        if (!(o instanceof Prestamo)) return false;
+        Prestamo prestamo = (Prestamo) o;
         return Objects.equals(idPrestamo, prestamo.idPrestamo);
     }
 

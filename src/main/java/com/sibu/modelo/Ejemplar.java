@@ -127,7 +127,8 @@ public class Ejemplar implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Ejemplar ejemplar)) return false;
+        if (!(o instanceof Ejemplar)) return false;
+        Ejemplar ejemplar = (Ejemplar) o;
         return Objects.equals(idEjemplar, ejemplar.idEjemplar) ||
                (codigoInventario != null && codigoInventario.equalsIgnoreCase(ejemplar.codigoInventario));
     }

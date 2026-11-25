@@ -1,19 +1,27 @@
--- ============================================================================
--- SIBU: SISTEMA INTEGRAL DE BIBLIOTECA UNIVERSITARIA
--- Script de Creación de Base de Datos, Esquema, Índices y Seeders Iniciales
--- Estándar de Calidad: ISO/IEC 25010:2023 (Eficiencia, Seguridad, Fiabilidad)
--- ============================================================================
+-- =============================================================================
+-- SIBU — Sistema Integrado de Bibliotecas Universitarias
+-- Base de datos: sibu_db  |  Motor: MariaDB 13.0  |  Charset: utf8mb4
+-- Generado automáticamente — compatible con InnoDB + ACID
+-- =============================================================================
 
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------------------------------
+-- 1. Base de datos
+-- -----------------------------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS sibu_db
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 USE sibu_db;
 
--- ----------------------------------------------------------------------------
--- 1. TABLA: usuarios
--- Gestión de cuentas de usuario y perfiles con contraseñas seguras (Hash + Salt)
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 2. Tabla: usuarios
+-- -----------------------------------------------------------------------------
 DROP TABLE IF EXISTS bitacora;
 DROP TABLE IF EXISTS sanciones;
 DROP TABLE IF EXISTS prestamos;
@@ -22,220 +30,205 @@ DROP TABLE IF EXISTS libros;
 DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    apellido VARCHAR(100) NOT NULL,
-    identificacion VARCHAR(30) NOT NULL UNIQUE,
-    email VARCHAR(120) NOT NULL UNIQUE,
-    telefono VARCHAR(25) NULL,
-    password_hash VARCHAR(128) NOT NULL,
-    salt VARCHAR(64) NOT NULL,
-    rol ENUM('ADMINISTRADOR', 'BIBLIOTECARIO', 'LECTOR') NOT NULL,
-    estado ENUM('ACTIVO', 'INACTIVO', 'SANCIONADO') NOT NULL DEFAULT 'ACTIVO',
-    fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_usuarios_email (email),
-    INDEX idx_usuarios_identificacion (identificacion),
-    INDEX idx_usuarios_rol (rol),
-    INDEX idx_usuarios_estado (estado)
+    id_usuario       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nombre           VARCHAR(80)  NOT NULL,
+    apellido         VARCHAR(80)  NOT NULL,
+    identificacion   VARCHAR(40)  NOT NULL COMMENT 'Matricula o nomina universitaria',
+    email            VARCHAR(120) NOT NULL,
+    telefono         VARCHAR(20)  DEFAULT NULL,
+    password_hash    CHAR(64)     NOT NULL COMMENT 'SHA-256 hex lowercase',
+    salt             CHAR(32)     NOT NULL COMMENT 'Hex 16 bytes',
+    rol              ENUM('ADMINISTRADOR','BIBLIOTECARIO','LECTOR') NOT NULL DEFAULT 'LECTOR',
+    estado           ENUM('ACTIVO','INACTIVO','SANCIONADO') NOT NULL DEFAULT 'ACTIVO',
+    fecha_registro   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_usuarios    PRIMARY KEY (id_usuario),
+    CONSTRAINT uq_identificacion UNIQUE (identificacion),
+    CONSTRAINT uq_email       UNIQUE (email),
+    INDEX idx_rol (rol),
+    INDEX idx_estado (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 2. TABLA: libros
--- Catálogo bibliográfico centralizado
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 3. Tabla: libros
+-- -----------------------------------------------------------------------------
 CREATE TABLE libros (
-    id_libro INT AUTO_INCREMENT PRIMARY KEY,
-    isbn VARCHAR(20) NOT NULL UNIQUE,
-    titulo VARCHAR(200) NOT NULL,
-    autor VARCHAR(150) NOT NULL,
-    editorial VARCHAR(100) NOT NULL,
-    anio_publicacion INT NOT NULL,
-    materia VARCHAR(100) NOT NULL,
-    descripcion TEXT NULL,
-    fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_libros_isbn (isbn),
-    INDEX idx_libros_titulo (titulo),
-    INDEX idx_libros_autor (autor),
-    INDEX idx_libros_materia (materia)
+    id_libro         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    isbn             VARCHAR(17)  NOT NULL COMMENT 'ISBN-10 o ISBN-13 sin guiones',
+    titulo           VARCHAR(255) NOT NULL,
+    autor            VARCHAR(150) NOT NULL,
+    editorial        VARCHAR(120) DEFAULT NULL,
+    anio_publicacion YEAR         DEFAULT NULL,
+    materia          VARCHAR(100) DEFAULT NULL,
+    descripcion      TEXT         DEFAULT NULL,
+    fecha_registro   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_libros      PRIMARY KEY (id_libro),
+    CONSTRAINT uq_isbn        UNIQUE (isbn),
+    INDEX idx_titulo (titulo(60)),
+    INDEX idx_autor  (autor(60)),
+    INDEX idx_materia (materia(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 3. TABLA: ejemplares
--- Copias físicas individuales vinculadas a un libro del catálogo
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 4. Tabla: ejemplares
+-- -----------------------------------------------------------------------------
 CREATE TABLE ejemplares (
-    id_ejemplar INT AUTO_INCREMENT PRIMARY KEY,
-    id_libro INT NOT NULL,
-    codigo_inventario VARCHAR(50) NOT NULL UNIQUE,
-    ubicacion VARCHAR(100) NOT NULL,
-    estado ENUM('DISPONIBLE', 'PRESTADO', 'DANADO', 'BAJA') NOT NULL DEFAULT 'DISPONIBLE',
-    observaciones VARCHAR(255) NULL,
-    CONSTRAINT fk_ejemplares_libro FOREIGN KEY (id_libro)
-        REFERENCES libros (id_libro) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_ejemplares_estado (estado),
-    INDEX idx_ejemplares_libro_estado (id_libro, estado)
+    id_ejemplar       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_libro          INT UNSIGNED NOT NULL,
+    codigo_inventario VARCHAR(30)  NOT NULL,
+    ubicacion         VARCHAR(60)  DEFAULT NULL COMMENT 'Estante / Pasillo',
+    estado            ENUM('DISPONIBLE','PRESTADO','DANADO','BAJA') NOT NULL DEFAULT 'DISPONIBLE',
+    observaciones     TEXT         DEFAULT NULL,
+    CONSTRAINT pk_ejemplares  PRIMARY KEY (id_ejemplar),
+    CONSTRAINT uq_codigo      UNIQUE (codigo_inventario),
+    CONSTRAINT fk_ej_libro    FOREIGN KEY (id_libro) REFERENCES libros(id_libro)
+                              ON UPDATE CASCADE ON DELETE RESTRICT,
+    INDEX idx_ej_estado (estado),
+    INDEX idx_ej_libro  (id_libro)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 4. TABLA: prestamos
--- Transacciones de circulación (préstamo, devolución y renovación)
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 5. Tabla: prestamos
+-- -----------------------------------------------------------------------------
 CREATE TABLE prestamos (
-    id_prestamo INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    id_ejemplar INT NOT NULL,
-    id_bibliotecario INT NOT NULL,
-    fecha_prestamo DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_limite DATE NOT NULL,
-    fecha_devolucion DATETIME NULL,
-    estado ENUM('ACTIVO', 'DEVUELTO', 'VENCIDO') NOT NULL DEFAULT 'ACTIVO',
-    renovaciones INT NOT NULL DEFAULT 0,
-    observaciones VARCHAR(255) NULL,
-    CONSTRAINT fk_prestamos_usuario FOREIGN KEY (id_usuario)
-        REFERENCES usuarios (id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_prestamos_ejemplar FOREIGN KEY (id_ejemplar)
-        REFERENCES ejemplares (id_ejemplar) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_prestamos_bibliotecario FOREIGN KEY (id_bibliotecario)
-        REFERENCES usuarios (id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_prestamos_usuario_estado (id_usuario, estado),
-    INDEX idx_prestamos_ejemplar_estado (id_ejemplar, estado),
-    INDEX idx_prestamos_fecha_limite (fecha_limite, estado),
-    INDEX idx_prestamos_fecha_prestamo (fecha_prestamo)
+    id_prestamo       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_usuario        INT UNSIGNED NOT NULL COMMENT 'Lector',
+    id_ejemplar       INT UNSIGNED NOT NULL,
+    id_bibliotecario  INT UNSIGNED NOT NULL,
+    fecha_prestamo    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_limite      DATE         NOT NULL,
+    fecha_devolucion  DATETIME     DEFAULT NULL,
+    estado            ENUM('ACTIVO','DEVUELTO','VENCIDO') NOT NULL DEFAULT 'ACTIVO',
+    renovaciones      TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    observaciones     TEXT         DEFAULT NULL,
+    CONSTRAINT pk_prestamos   PRIMARY KEY (id_prestamo),
+    CONSTRAINT fk_pr_usuario  FOREIGN KEY (id_usuario)       REFERENCES usuarios(id_usuario) ON UPDATE CASCADE,
+    CONSTRAINT fk_pr_ejemplar FOREIGN KEY (id_ejemplar)      REFERENCES ejemplares(id_ejemplar) ON UPDATE CASCADE,
+    CONSTRAINT fk_pr_biblio   FOREIGN KEY (id_bibliotecario) REFERENCES usuarios(id_usuario)   ON UPDATE CASCADE,
+    INDEX idx_pr_usuario  (id_usuario),
+    INDEX idx_pr_estado   (estado),
+    INDEX idx_pr_fecha    (fecha_limite)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 5. TABLA: sanciones
--- Multas y sanciones generadas automáticamente por retraso en devoluciones
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 6. Tabla: sanciones
+-- -----------------------------------------------------------------------------
 CREATE TABLE sanciones (
-    id_sancion INT AUTO_INCREMENT PRIMARY KEY,
-    id_prestamo INT NOT NULL,
-    id_usuario INT NOT NULL,
-    dias_retraso INT NOT NULL,
-    monto DECIMAL(10, 2) NOT NULL,
-    motivo VARCHAR(255) NOT NULL,
-    estado ENUM('PENDIENTE', 'PAGADA', 'CONDONADA') NOT NULL DEFAULT 'PENDIENTE',
-    fecha_generacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_pago DATETIME NULL,
-    CONSTRAINT fk_sanciones_prestamo FOREIGN KEY (id_prestamo)
-        REFERENCES prestamos (id_prestamo) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_sanciones_usuario FOREIGN KEY (id_usuario)
-        REFERENCES usuarios (id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_sanciones_usuario_estado (id_usuario, estado),
-    INDEX idx_sanciones_estado (estado),
-    INDEX idx_sanciones_fecha (fecha_generacion)
+    id_sancion        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_prestamo       INT UNSIGNED NOT NULL,
+    id_usuario        INT UNSIGNED NOT NULL,
+    dias_retraso      SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    monto             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    motivo            VARCHAR(255)  DEFAULT NULL,
+    estado            ENUM('PENDIENTE','PAGADA','CONDONADA') NOT NULL DEFAULT 'PENDIENTE',
+    fecha_generacion  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_pago        DATETIME     DEFAULT NULL,
+    CONSTRAINT pk_sanciones   PRIMARY KEY (id_sancion),
+    CONSTRAINT fk_sa_prestamo FOREIGN KEY (id_prestamo) REFERENCES prestamos(id_prestamo) ON UPDATE CASCADE,
+    CONSTRAINT fk_sa_usuario  FOREIGN KEY (id_usuario)  REFERENCES usuarios(id_usuario)   ON UPDATE CASCADE,
+    INDEX idx_sa_usuario (id_usuario),
+    INDEX idx_sa_estado  (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- 6. TABLA: bitacora
--- Trazabilidad y auditoría estricta de operaciones del sistema
--- ----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- 7. Tabla: bitacora
+-- -----------------------------------------------------------------------------
 CREATE TABLE bitacora (
-    id_bitacora INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NULL,
-    modulo VARCHAR(50) NOT NULL,
-    accion ENUM('INSERT', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'PRESTAMO', 'DEVOLUCION', 'RENOVACION', 'BACKUP', 'RESTORE') NOT NULL,
-    detalle TEXT NOT NULL,
-    ip_host VARCHAR(50) NOT NULL DEFAULT 'LOCALHOST',
-    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_bitacora_usuario FOREIGN KEY (id_usuario)
-        REFERENCES usuarios (id_usuario) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_bitacora_fecha (fecha),
-    INDEX idx_bitacora_usuario (id_usuario),
-    INDEX idx_bitacora_modulo_accion (modulo, accion)
+    id_bitacora   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_usuario    INT UNSIGNED DEFAULT NULL,
+    modulo        VARCHAR(40)  NOT NULL,
+    accion        VARCHAR(40)  NOT NULL,
+    detalle       TEXT         DEFAULT NULL,
+    host_ip       VARCHAR(45)  DEFAULT NULL,
+    fecha_evento  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_bitacora    PRIMARY KEY (id_bitacora),
+    CONSTRAINT fk_bi_usuario  FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE,
+    INDEX idx_bi_modulo (modulo),
+    INDEX idx_bi_fecha  (fecha_evento)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================================
--- USUARIO CON PRIVILEGIOS MÍNIMOS (Principio de Mínimo Privilegio ISO 25010)
--- ============================================================================
-CREATE USER IF NOT EXISTS 'sibu_user'@'localhost' IDENTIFIED BY 'Sibu2024*Pass';
-GRANT SELECT, INSERT, UPDATE, DELETE ON sibu_db.* TO 'sibu_user'@'localhost';
-FLUSH PRIVILEGES;
+SET foreign_key_checks = 1;
 
--- ============================================================================
--- SEEDERS: POBLADO DE DATOS INICIALES DE PRUEBA
--- ============================================================================
+-- =============================================================================
+-- SEEDERS — Datos iniciales de prueba
+-- Hashes pre-calculados con SeguridadUtil.hashPassword (SHA-256 con salt)
+-- Algoritmo: SHA-256( saltBytes || passwordUTF8 )  — salt primero (update), luego digest
+-- =============================================================================
 
--- Contraseñas configuradas:
--- Admin:          Admin123*
--- Bibliotecario:  Biblio123*
--- Lectores:       Lector123*
+-- -----------------------------------------------------------------------------
+-- Usuarios de prueba (3 roles)
+-- Admin123*  / salt=a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+-- Biblio123* / salt=b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7
+-- Lector123* / salt=c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
+-- -----------------------------------------------------------------------------
+INSERT INTO usuarios (nombre, apellido, identificacion, email, telefono, password_hash, salt, rol, estado) VALUES
+('Administrador',  'SIBU',     'ADM-001',  'admin@sibu.edu',          '555-0001',
+ '0336da87f303b4860af80fbef555c30347ce8335792a3419f7c4ece52a03129a',
+ 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6', 'ADMINISTRADOR', 'ACTIVO'),
 
-INSERT INTO usuarios (id_usuario, nombre, apellido, identificacion, email, telefono, password_hash, salt, rol, estado) VALUES
-(1, 'Carlos', 'Mendoza', 'ADM-001', 'admin@sibu.edu', '555-0101', 'd927d6c3402cf866cebee70a9605a90566912a299065c746a7dfb584e7f4b945', 'a1b2c3d4e5f60718293a4b5c6d7e8f90', 'ADMINISTRADOR', 'ACTIVO'),
-(2, 'Beatriz', 'Salazar', 'BIB-002', 'bibliotecario@sibu.edu', '555-0102', '15d3089451437e5171116b3d4e550df30039825a93cd9838e5002ef7905a2f65', 'b2c3d4e5f60718293a4b5c6d7e8f90a1', 'BIBLIOTECARIO', 'ACTIVO'),
-(3, 'Juan', 'Perez', 'LEC-003', 'lector1@sibu.edu', '555-0103', 'a9bf4c0c8328edf9b3ac586bcae453f425881aeae6e1c029c0e2c9ecb838de0a', 'c3d4e5f60718293a4b5c6d7e8f90a1b2', 'LECTOR', 'ACTIVO'),
-(4, 'Maria', 'Gomez', 'LEC-004', 'lector2@sibu.edu', '555-0104', '735b464ad5431fd8780559df78fb1ee897536e0c32e14414e0eb13c6af686108', 'd4e5f60718293a4b5c6d7e8f90a1b2c3', 'LECTOR', 'SANCIONADO');
+('Carlos',         'Mendoza',  'BIB-001',  'bibliotecario@sibu.edu',  '555-0002',
+ '5224e5ff4957e9c0c5b1ad64a77f658a67cde63923fce400a5c791c3df6b5fbd',
+ 'b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7', 'BIBLIOTECARIO', 'ACTIVO'),
 
--- Catálogo de Libros (10 obras académicas y literarias en diversas materias)
-INSERT INTO libros (id_libro, isbn, titulo, autor, editorial, anio_publicacion, materia, descripcion) VALUES
-(1, '978-0132350884', 'Clean Code: A Handbook of Agile Software Craftsmanship', 'Robert C. Martin', 'Prentice Hall', 2008, 'Ingeniería de Software', 'Principios, patrones y mejores prácticas para la escritura de código limpio y profesional.'),
-(2, '978-0201633610', 'Design Patterns: Elements of Reusable Object-Oriented Software', 'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', 'Addison-Wesley', 1994, 'Ingeniería de Software', 'Catálogo de patrones de diseño clásicos fundamentales para la arquitectura orientada a objetos.'),
-(3, '978-0078022159', 'Database System Concepts', 'Abraham Silberschatz, Henry F. Korth, S. Sudarshan', 'McGraw-Hill', 2019, 'Bases de Datos', 'Conceptos fundamentales y avanzados sobre modelos de bases de datos relacionales, SQL y transacciones.'),
-(4, '978-0262046305', 'Introduction to Algorithms', 'Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein', 'MIT Press', 2022, 'Algoritmos', 'Texto de referencia exhaustivo sobre diseño, análisis y complejidad de algoritmos.'),
-(5, '978-0137523214', 'Computer Networks', 'Andrew S. Tanenbaum, Nick Feamster, David J. Wetherall', 'Pearson', 2021, 'Redes', 'Estudio estructurado por capas del funcionamiento de redes de computadoras e Internet.'),
-(6, '978-0134610992', 'Artificial Intelligence: A Modern Approach', 'Stuart Russell, Peter Norvig', 'Pearson', 2020, 'Inteligencia Artificial', 'La obra de referencia global en teoría, búsqueda, aprendizaje automático y agentes inteligentes.'),
-(7, '978-1119456339', 'Operating System Concepts', 'Abraham Silberschatz, Peter B. Galvin, Greg Gagne', 'Wiley', 2018, 'Sistemas Operativos', 'Estructura de kernels, administración de procesos, memoria virtual, almacenamiento y seguridad.'),
-(8, '978-0307474728', 'Cien años de soledad', 'Gabriel García Márquez', 'Editorial Sudamericana', 1967, 'Literatura', 'Obra cumbre del realismo mágico y de la literatura latinoamericana universal.'),
-(9, '978-6075265506', 'Cálculo de una variable: Trascendentes tempranas', 'James Stewart', 'Cengage Learning', 2016, 'Matemáticas', 'Fundamentos de límites, derivadas, integrales y sus aplicaciones en ciencias e ingeniería.'),
-(10, '978-6073244398', 'Física Universitaria con Física Moderna', 'Hugh D. Young, Roger A. Freedman', 'Pearson', 2018, 'Física', 'Mecánica clásica, termodinámica, electromagnetismo, óptica y física contemporánea.');
+('María',          'García',   'LEC-001',  'lector1@sibu.edu',        '555-0003',
+ '859653615fe269a24789e1de61d10f9318e20b2e4b63f2c7794c197773f352c7',
+ 'c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8', 'LECTOR',         'ACTIVO'),
 
--- Ejemplares Físicos (Inventario con códigos de barra y ubicaciones)
-INSERT INTO ejemplares (id_ejemplar, id_libro, codigo_inventario, ubicacion, estado, observaciones) VALUES
--- Ejemplares para Clean Code (Libro 1)
-(1, 1, 'EJEM-CC-001', 'Estante A-1, Nivel 2', 'DISPONIBLE', 'Copia en excelente estado de conservación.'),
-(2, 1, 'EJEM-CC-002', 'Estante A-1, Nivel 2', 'PRESTADO', 'Prestado a usuario Juan Perez.'),
-(3, 1, 'EJEM-CC-003', 'Estante A-1, Nivel 2', 'DISPONIBLE', 'Nuevo ingreso al catálogo.'),
--- Ejemplares para Design Patterns (Libro 2)
-(4, 2, 'EJEM-DP-001', 'Estante A-1, Nivel 3', 'DISPONIBLE', 'Ejemplar encuadernado de tapa dura.'),
-(5, 2, 'EJEM-DP-002', 'Estante A-1, Nivel 3', 'PRESTADO', 'Prestado con retraso a Maria Gomez.'),
--- Ejemplares para Database System Concepts (Libro 3)
-(6, 3, 'EJEM-BD-001', 'Estante B-2, Nivel 1', 'DISPONIBLE', 'En anaquel principal.'),
-(7, 3, 'EJEM-BD-002', 'Estante B-2, Nivel 1', 'DISPONIBLE', 'En anaquel principal.'),
-(8, 3, 'EJEM-BD-003', 'Estante B-2, Nivel 1', 'DANADO', 'Lomo desgastado; enviado a taller de restauración.'),
--- Ejemplares para Introduction to Algorithms (Libro 4)
-(9, 4, 'EJEM-AL-001', 'Estante B-3, Nivel 2', 'DISPONIBLE', 'Ejemplar de consulta general.'),
-(10, 4, 'EJEM-AL-002', 'Estante B-3, Nivel 2', 'DISPONIBLE', 'Ejemplar de reserva bibliográfica.'),
--- Ejemplares para Computer Networks (Libro 5)
-(11, 5, 'EJEM-RD-001', 'Estante C-1, Nivel 1', 'DISPONIBLE', 'Ubicación central de redes.'),
-(12, 5, 'EJEM-RD-002', 'Estante C-1, Nivel 1', 'BAJA', 'Ejemplar extraviado en periodo 2023.'),
--- Ejemplares para Artificial Intelligence (Libro 6)
-(13, 6, 'EJEM-IA-001', 'Estante C-2, Nivel 3', 'DISPONIBLE', 'Ejemplar nuevo.'),
-(14, 6, 'EJEM-IA-002', 'Estante C-2, Nivel 3', 'DISPONIBLE', 'Ejemplar en circulación regular.'),
--- Ejemplares para Operating Systems (Libro 7)
-(15, 7, 'EJEM-SO-001', 'Estante D-1, Nivel 2', 'DISPONIBLE', 'Ejemplar para consulta en sala.'),
-(16, 7, 'EJEM-SO-002', 'Estante D-1, Nivel 2', 'DISPONIBLE', 'Ejemplar en circulación regular.'),
--- Ejemplares para Cien años de soledad (Libro 8)
-(17, 8, 'EJEM-LIT-001', 'Estante E-1, Nivel 1', 'DISPONIBLE', 'Colección narrativa hispánica.'),
-(18, 8, 'EJEM-LIT-002', 'Estante E-1, Nivel 1', 'DISPONIBLE', 'Edición conmemorativa.'),
--- Ejemplares para Cálculo (Libro 9)
-(19, 9, 'EJEM-MAT-001', 'Estante F-1, Nivel 1', 'DISPONIBLE', 'Texto obligatorio ciclo básico.'),
-(20, 9, 'EJEM-MAT-002', 'Estante F-1, Nivel 1', 'DISPONIBLE', 'Texto obligatorio ciclo básico.'),
--- Ejemplares para Física (Libro 10)
-(21, 10, 'EJEM-FIS-001', 'Estante F-2, Nivel 2', 'DISPONIBLE', 'Tomo integral.'),
-(22, 10, 'EJEM-FIS-002', 'Estante F-2, Nivel 2', 'DISPONIBLE', 'Tomo integral.');
+('Pedro',          'Ramírez',  'LEC-002',  'lector2@sibu.edu',        NULL,
+ '859653615fe269a24789e1de61d10f9318e20b2e4b63f2c7794c197773f352c7',
+ 'c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8', 'LECTOR',         'ACTIVO'),
 
--- Préstamos (Ejemplos de activo, devuelto y vencido)
-INSERT INTO prestamos (id_prestamo, id_usuario, id_ejemplar, id_bibliotecario, fecha_prestamo, fecha_limite, fecha_devolucion, estado, renovaciones, observaciones) VALUES
--- Préstamo 1: Activo en vigencia (Juan Perez)
-(1, 3, 2, 2, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_ADD(CURDATE(), INTERVAL 5 DAY), NULL, 'ACTIVO', 0, 'Préstamo regular por 7 días.'),
--- Préstamo 2: Devuelto correctamente en el pasado
-(2, 3, 1, 2, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 13 DAY), DATE_SUB(NOW(), INTERVAL 14 DAY), 'DEVUELTO', 0, 'Devolución anticipada sin novedades.'),
--- Préstamo 3: Vencido con 4 días de retraso (Maria Gomez)
-(3, 4, 5, 2, DATE_SUB(NOW(), INTERVAL 11 DAY), DATE_SUB(CURDATE(), INTERVAL 4 DAY), NULL, 'VENCIDO', 0, 'Lector no se presentó a renovar ni devolver.');
+('Ana',            'Torres',   'LEC-003',  'lector3@sibu.edu',        NULL,
+ '859653615fe269a24789e1de61d10f9318e20b2e4b63f2c7794c197773f352c7',
+ 'c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8', 'LECTOR',         'INACTIVO');
 
--- Sanciones
-INSERT INTO sanciones (id_sancion, id_prestamo, id_usuario, dias_retraso, monto, motivo, estado, fecha_generacion, fecha_pago) VALUES
--- Sanción generada para el préstamo vencido 3
-(1, 3, 4, 4, 20.00, 'Retraso de 4 días en devolución de ejemplar EJEM-DP-002 ($5.00/día)', 'PENDIENTE', DATE_SUB(NOW(), INTERVAL 4 DAY), NULL),
--- Sanción histórica ya pagada por Juan Perez
-(2, 2, 3, 3, 15.00, 'Retraso en préstamo anterior liquidado en caja', 'PAGADA', DATE_SUB(NOW(), INTERVAL 40 DAY), DATE_SUB(NOW(), INTERVAL 39 DAY));
+-- -----------------------------------------------------------------------------
+-- Libros (5 representativos)
+-- -----------------------------------------------------------------------------
+INSERT INTO libros (isbn, titulo, autor, editorial, anio_publicacion, materia, descripcion) VALUES
+('9780134685991', 'Effective Java',
+ 'Joshua Bloch', 'Addison-Wesley', 2018, 'Programación',
+ 'Guía de buenas prácticas para programadores Java. Tercera edición.'),
 
--- Bitácora Inicial de Operaciones
-INSERT INTO bitacora (id_usuario, modulo, accion, detalle, ip_host, fecha) VALUES
-(1, 'SISTEMA', 'INSERT', 'Despliegue inicial de base de datos e inserción de seeders del sistema SIBU.', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(1, 'USUARIOS', 'INSERT', 'Registro inicial del usuario Administrador (carlos.mendoza).', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(1, 'USUARIOS', 'INSERT', 'Registro del personal de biblioteca (beatriz.salazar).', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 29 DAY)),
-(2, 'CATALOGO', 'INSERT', 'Alta de catálogo bibliográfico con 10 libros y 22 ejemplares físicos.', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 25 DAY)),
-(2, 'CIRCULACION', 'PRESTAMO', 'Registro de préstamo de ejemplar EJEM-CC-002 a Juan Perez.', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(2, 'CIRCULACION', 'PRESTAMO', 'Registro de préstamo de ejemplar EJEM-DP-002 a Maria Gomez.', '127.0.0.1', DATE_SUB(NOW(), INTERVAL 11 DAY));
+('9780132350884', 'Clean Code: A Handbook of Agile Software Craftsmanship',
+ 'Robert C. Martin', 'Prentice Hall', 2008, 'Ingeniería de Software',
+ 'Principios, patrones y prácticas para escribir código limpio.'),
+
+('9789702608882', 'Fundamentos de Bases de Datos',
+ 'Abraham Silberschatz', 'McGraw-Hill', 2010, 'Bases de Datos',
+ 'Texto universitario estándar sobre sistemas de gestión de bases de datos.'),
+
+('9789681859459', 'El Nombre de la Rosa',
+ 'Umberto Eco', 'Lumen', 1980, 'Literatura',
+ 'Novela histórica ambientada en un monasterio medieval italiano.'),
+
+('9786071503084', 'Introducción a los Algoritmos',
+ 'Thomas H. Cormen', 'MIT Press / CECSA', 2009, 'Algoritmia',
+ 'Texto de referencia en diseño y análisis de algoritmos. Tercera edición.');
+
+-- -----------------------------------------------------------------------------
+-- Ejemplares (10 con estados variados)
+-- -----------------------------------------------------------------------------
+INSERT INTO ejemplares (id_libro, codigo_inventario, ubicacion, estado, observaciones) VALUES
+(1, 'EJ-0001', 'A-01', 'DISPONIBLE', NULL),
+(1, 'EJ-0002', 'A-01', 'DISPONIBLE', NULL),
+(2, 'EJ-0003', 'A-02', 'DISPONIBLE', NULL),
+(2, 'EJ-0004', 'A-02', 'PRESTADO',   'Prestado en campaña de lectura'),
+(3, 'EJ-0005', 'B-01', 'DISPONIBLE', NULL),
+(3, 'EJ-0006', 'B-01', 'PRESTADO',   NULL),
+(4, 'EJ-0007', 'C-03', 'DISPONIBLE', NULL),
+(4, 'EJ-0008', 'C-03', 'DANADO',     'Lomo despegado, pendiente reparación'),
+(5, 'EJ-0009', 'D-02', 'DISPONIBLE', NULL),
+(5, 'EJ-0010', 'D-02', 'BAJA',       'Ejemplar dado de baja por deterioro severo');
+
+-- -----------------------------------------------------------------------------
+-- Préstamos de muestra
+-- EJ-0004 prestado a lector1 (id=3), procesado por bibliotecario (id=2)
+-- EJ-0006 prestado a lector2 (id=4), procesado por bibliotecario (id=2)
+-- -----------------------------------------------------------------------------
+INSERT INTO prestamos (id_usuario, id_ejemplar, id_bibliotecario, fecha_prestamo, fecha_limite, fecha_devolucion, estado, renovaciones, observaciones) VALUES
+(3, 4, 2, DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_ADD(CURDATE(), INTERVAL 4 DAY),  NULL, 'ACTIVO',   0, 'Préstamo de demostración — sin novedad'),
+(4, 6, 2, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 3 DAY), NULL, 'VENCIDO',  0, 'Préstamo vencido — pendiente devolución');
+
+-- Entrada en bitácora por los seeders
+INSERT INTO bitacora (id_usuario, modulo, accion, detalle, host_ip) VALUES
+(1, 'SISTEMA', 'INSERT', 'Carga inicial de datos (seeders SIBU v2)', '127.0.0.1');

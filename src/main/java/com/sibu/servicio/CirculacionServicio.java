@@ -169,9 +169,9 @@ public class CirculacionServicio {
                     LOGGER.log(Level.SEVERE, "Fallo al ejecutar rollback de préstamo.", rEx);
                 }
             }
-            if (e instanceof CirculacionException ce) throw ce;
-            if (e instanceof ValidacionException ve) throw ve;
-            if (e instanceof SQLException se) throw se;
+            if (e instanceof CirculacionException) throw (CirculacionException) e;
+            if (e instanceof ValidacionException) throw (ValidacionException) e;
+            if (e instanceof SQLException) throw (SQLException) e;
             throw new SQLException("Error imprevisto durante el préstamo: " + e.getMessage(), e);
         } finally {
             if (con != null) {
@@ -280,9 +280,9 @@ public class CirculacionServicio {
                     LOGGER.log(Level.SEVERE, "Fallo al ejecutar rollback de devolución.", rEx);
                 }
             }
-            if (e instanceof CirculacionException ce) throw ce;
-            if (e instanceof ValidacionException ve) throw ve;
-            if (e instanceof SQLException se) throw se;
+            if (e instanceof CirculacionException) throw (CirculacionException) e;
+            if (e instanceof ValidacionException) throw (ValidacionException) e;
+            if (e instanceof SQLException) throw (SQLException) e;
             throw new SQLException("Error imprevisto durante la devolución: " + e.getMessage(), e);
         } finally {
             if (con != null) {
@@ -358,9 +358,9 @@ public class CirculacionServicio {
                     LOGGER.log(Level.SEVERE, "Fallo en rollback de renovación.", rEx);
                 }
             }
-            if (e instanceof CirculacionException ce) throw ce;
-            if (e instanceof ValidacionException ve) throw ve;
-            if (e instanceof SQLException se) throw se;
+            if (e instanceof CirculacionException) throw (CirculacionException) e;
+            if (e instanceof ValidacionException) throw (ValidacionException) e;
+            if (e instanceof SQLException) throw (SQLException) e;
             throw new SQLException("Error en renovación: " + e.getMessage(), e);
         } finally {
             if (con != null) {
@@ -420,8 +420,8 @@ public class CirculacionServicio {
                     LOGGER.log(Level.SEVERE, "Fallo en rollback de pago de sanción.", rEx);
                 }
             }
-            if (e instanceof ValidacionException ve) throw ve;
-            if (e instanceof SQLException se) throw se;
+            if (e instanceof ValidacionException) throw (ValidacionException) e;
+            if (e instanceof SQLException) throw (SQLException) e;
             throw new SQLException("Error al procesar pago: " + e.getMessage(), e);
         } finally {
             if (con != null) {
@@ -476,8 +476,8 @@ public class CirculacionServicio {
                     LOGGER.log(Level.SEVERE, "Fallo en rollback de condonación.", rEx);
                 }
             }
-            if (e instanceof ValidacionException ve) throw ve;
-            if (e instanceof SQLException se) throw se;
+            if (e instanceof ValidacionException) throw (ValidacionException) e;
+            if (e instanceof SQLException) throw (SQLException) e;
             throw new SQLException("Error al condonar sanción: " + e.getMessage(), e);
         } finally {
             if (con != null) {

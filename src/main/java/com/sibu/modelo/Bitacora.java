@@ -158,7 +158,8 @@ public class Bitacora implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Bitacora bitacora)) return false;
+        if (!(o instanceof Bitacora)) return false;
+        Bitacora bitacora = (Bitacora) o;
         return Objects.equals(idBitacora, bitacora.idBitacora);
     }
 

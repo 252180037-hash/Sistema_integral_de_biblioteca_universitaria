@@ -182,7 +182,8 @@ public class Sancion implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Sancion sancion)) return false;
+        if (!(o instanceof Sancion)) return false;
+        Sancion sancion = (Sancion) o;
         return Objects.equals(idSancion, sancion.idSancion);
     }
 
